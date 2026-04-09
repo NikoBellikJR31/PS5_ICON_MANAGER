@@ -30,6 +30,7 @@ Remplacez les icônes, backgrounds et visuels XMB de vos jeux PS5 — directemen
 - 🎨 Modification des icônes (`icon0`)
 - 🖼️ Modification des backgrounds (`pic1`)
 - 🧩 Custom du background XMB
+- 💾 Savedata
 
 👉 Glissez n’importe quelle image, le tool gère tout automatiquement :
 - Conversion
@@ -40,12 +41,13 @@ Remplacez les icônes, backgrounds et visuels XMB de vos jeux PS5 — directemen
 
   Dans l'ideal pour le redimensionnement essayer de mettre au minimum des images proche des tailles respectif , upscale ces pas terrible.
 
-  Le fonctionnement est simple , vous double cliquer sur le .bat , vous aller sur votre navigateur ( j'utilise Opera Gx pour l'historique des ip  ) vous taper localhost:8001 ou ctrl cliquer sur le link sur le cmd.
+  Le fonctionnement est simple , vous double cliquer sur le .bat , installer les dependances , vous aller sur votre navigateur ( j'utilise Opera Gx pour l'historique des ip  ) vous taper localhost:8001 ou ctrl cliquer sur le link sur le cmd.
 
-   Vous rentrer ip/port , sa va scanner vos applications , vous cliquer sur votre jeu ou applications, cela va trouver vos images , vous changer a votre souhaits les images qu'il a '''trouver d'origine''' vous cliquer sur '''remplacer''' pas besoin de renommer ou d'avoir specialement un png ou dds le tool se charge de tout convertir redimensionner ... et parallelement il creer des .bak de vos icons d'origine ,  si vous souhaiter les remettre a l'etat d'origine  ultérieurement vous cliquer sur 'restaurer backups' vous aurez le choix de restaurer que la jaquette ou seulement le background xmb celui du demarrage ... au choix
+   Vous rentrer ip/port , sa va scanner vos applications , vous cliquer sur votre jeu ou applications, cela va trouver vos images , vous changer a votre souhaits les images qu'il a '''trouver d'origine''' vous cliquer sur '''remplacer''' ( je n'ai pas mis scan partout sa prener trop de temps , mais c'est suffisant) pas besoin de renommer ou d'avoir specialement un png ou dds le tool se charge de tout convertir redimensionner ... et parallelement il creer des .bak de vos icons d'origine ,  si vous souhaiter les remettre a l'etat d'origine  ultérieurement vous cliquer sur 'restaurer backups' vous aurez le choix de restaurer que la jaquette ou seulement le background xmb celui du demarrage ... au choix
 
-  Pour les jeux ou homebrews, prenons pour exemple Itemflow ou homebrew store il non pas de background xmb de base ces des generique , le tool ne vous trouvera rien non plus , vous pouvez rajouter une image tout de meme , vous cliquer sur remplacer vous mettez une image , ensuite vous cliquer sur forcer chemins et vous aurez votre image xmb ( peut ne pas fonctionner pour tous je n'ai pas tous regarder encore ) netflix youtube autoloader fonctionnel ...
-  Certains changement demande de redemarrer la console
+  Pour les jeux ou homebrews, prenons pour exemple Itemflow ou homebrew store il non pas de background xmb de base ces des generique , le tool ne vous trouvera rien non plus , vous pouvez rajouter une image tout de meme , vous cliquer sur remplacer vous mettez une image , ensuite vous cliquer sur forcer chemins et vous aurez votre image xmb qui ne va plus disparaitre au redemarrage console (peut ne pas fonctionner pour tous je n'ai pas tous regarder encore ) netflix youtube autoloader fonctionnel ...
+  Certains changement demande de redemarrer la console.
+  
   Vous avez la touche supprimer pour effacer directement , quand vous supprimer sa enleve aussi dans la db pour ne pas avoir des entrees fantome 
 Pour vos modifications d'image il y a gimp et paint.net
  
