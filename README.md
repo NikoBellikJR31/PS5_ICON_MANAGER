@@ -19,15 +19,9 @@ Remplacez les icônes, backgrounds et visuels XMB de vos jeux PS5 — directemen
 
 ## 🎥 Demo
 
-<div align="center">
+[![Voir la vidéo](https://img.youtube.com/vi/ezQQhMrpd0Q/maxresdefault.jpg)](https://youtu.be/ezQQhMrpd0Q)
 
-<a href="https://youtu.be/ezQQhMrpd0Q">
-  <img src="assets/demo.gif" width="600"/>
-</a>
-
-</div>
-
-👉 Clique sur l’image pour voir la vidéo complète
+👉 Clique sur l’image pour voir la vidéo
 
 ---
 
@@ -67,7 +61,3 @@ Pour vos modifications d'image il y a gimp et paint.net
 
    Version beta 2.1 car j'ai differente versions avec d'autres options en test , possible bug 
 
-versions exe avec modifications des noms des fonts et at9
-
-git clone https://github.com/votre-pseudo/ps5-icon-manager.git
-cd ps5-icon-manager
