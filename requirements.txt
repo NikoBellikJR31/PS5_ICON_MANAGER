@@ -1,0 +1,7 @@
+fastapi==0.110.1
+uvicorn==0.25.0
+python-dotenv>=1.0.1
+aioftp==0.27.2
+aiosqlite==0.22.1
+Pillow>=12.0.0
+python-multipart>=0.0.9
