@@ -39,7 +39,7 @@ Remplacez les icônes, backgrounds et visuels XMB de vos jeux PS5 — directemen
 - Placement
 - Backup des images avant changement puis restauration backup
 
-  Dans l'ideal pour le redimensionnement essayer de mettre au minimum des images proche des tailles respectif , upscale ces pas terrible.
+  Dans l'ideal pour le redimensionnement essayer de mettre au minimum des images proche des tailles respectif , sinon si l' image est trop petite par exemple une petite image pour un background xmb le tool va redimensionner mais upscale ces pas terrible.
 
   Le fonctionnement est simple , vous double cliquer sur le .bat , installer les dependances , vous aller sur votre navigateur ( j'utilise Opera Gx pour l'historique des ip  ) vous taper localhost:8001 ou ctrl cliquer sur le link sur le cmd.
 
