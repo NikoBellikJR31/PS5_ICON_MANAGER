@@ -53,7 +53,7 @@ Remplacez les icônes, backgrounds et visuels XMB de vos jeux PS5 — directemen
 
   Vous avez inspecter db pour check vos emplacements...
 
-  Vous avez egalement un bouton test pour voir si vous etes encore synchro avec la console en cas de saturation en ftp 
+  Vous avez egalement un bouton test pour voir si vous etes encore synchro avec la console en cas de saturation en ftp...                                      Il y a les logs directement sur le cmd 
   
   Pour vos modifications d'images si vous souhaiter les customiser il y a gimp et paint.net 
                          - https://www.gimp.org/downloads/
