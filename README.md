@@ -49,7 +49,8 @@ Remplacez les icônes, backgrounds et visuels XMB de vos jeux PS5 — directemen
   Certains changement demande de redemarrer la console.
   
   Vous avez la touche supprimer pour effacer directement , quand vous supprimer sa enleve aussi dans la db pour ne pas avoir des entrees fantome 
-Pour vos modifications d'image il y a gimp et paint.net
+
+  Pour vos modifications d'images il y a gimp et paint.net 
  
 ---
 
