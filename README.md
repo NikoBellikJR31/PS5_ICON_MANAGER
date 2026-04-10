@@ -29,7 +29,7 @@ Remplacez les icônes, backgrounds et visuels XMB de vos jeux PS5 — directemen
 
 - 🎨 Modification des icônes (`icon0`)
 - 🖼️ Modification des backgrounds (`pic1`) (`pic0`)...
-- 🧩 Custom du background XMB meme si generic ( force un chemins...)
+- 🧩 Custom du background XMB meme si generic ( force un chemin...)
 - 💾 Savedata
 
 👉 Glissez n’importe quelle image, le tool gère tout automatiquement :
