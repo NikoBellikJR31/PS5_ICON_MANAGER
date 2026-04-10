@@ -66,7 +66,7 @@ Remplacez les icônes, backgrounds et visuels XMB de vos jeux PS5 — directemen
 - Windows 
 - PS5 avec FTP activer
 
-   Version beta 2.1 car j'ai differente versions avec d'autres options en test , possible bug sur version actuelle
+   Version beta 2.1 car j'ai differente versions avec d'autres options en test , probablement des bugs sur version actuelle , pas encore eu de soucis de      mon cote , tester sur PS5 6.02.
 
    J'aimerai faire a l'avenir plus avec un exe , modif des noms d'application et changement de Fonts 
 
