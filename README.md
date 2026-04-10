@@ -30,7 +30,7 @@ Remplacez les icônes, backgrounds et visuels XMB de vos jeux PS5 — directemen
 - 🎨 Modification des icônes (`icon0`)
 - 🖼️ Modification des backgrounds (`pic1`) (`pic0`)...
 - 🧩 Custom du background XMB meme si generic ( force un chemin...)
-- 💾  Images Savedata ⚠️⚠️ ( pas terminer ) Lire *1 👇
+- 💾  Images Savedata ⚠️⚠️ (pas terminer) Lire *1 👇
 
 👉 Glissez n’importe quelle image, le tool gère tout automatiquement :
 - Conversion
@@ -74,11 +74,11 @@ Remplacez les icônes, backgrounds et visuels XMB de vos jeux PS5 — directemen
 
 ---
 
-           *1 ## ⚠️ Attention - Sauvegardes
+     *1 ## ⚠️ Attention - Sauvegardes
 
 La modification des icônes de sauvegarde peut entraîner une corruption des données.
 
-Même si le nom et la taille du fichier restent identiques, certaines sauvegardes contiennent :
+Même si le nom et la taille du fichier restent identiques, certaines sauvegardes contiennent:
 - des checksums
 - des validations internes
 - une structure stricte
