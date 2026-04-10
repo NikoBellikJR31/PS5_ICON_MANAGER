@@ -30,7 +30,7 @@ Remplacez les icônes, backgrounds et visuels XMB de vos jeux PS5 — directemen
 - 🎨 Modification des icônes (`icon0`)
 - 🖼️ Modification des backgrounds (`pic1`) (`pic0`)...
 - 🧩 Custom du background XMB meme si generic ( force un chemin...)
-- 💾 Savedata
+- 💾  Images Savedata ⚠️⚠️ ( pas terminer ) Lire *1 👇
 
 👉 Glissez n’importe quelle image, le tool gère tout automatiquement :
 - Conversion
@@ -68,7 +68,21 @@ Remplacez les icônes, backgrounds et visuels XMB de vos jeux PS5 — directemen
 - Windows 
 - PS5 avec FTP activer
 
-   Version beta 2.1 car j'ai differente versions avec d'autres options en test , probablement des bugs sur version actuelle , pas encore eu de soucis de      mon cote , tester sur PS5 6.02.
+   Version beta 2.1 car j'ai differente versions avec d'autres options en test (sql intégré...) , probablement des bugs sur version actuelle , pas encore eu de soucis de mon cote , tester sur Ps5 6.02.
 
-   J'aimerai faire a l'avenir un exe , pour modif des noms d'application et changement de Fonts 
+⚠️⚠️⚠️ Je suis pas un expert , apres 3 jours de test pas de problèmes avéré personnellement mais rester vigilant sa ne veut pas dire qu'il n'y en pas , il y a peut etres des facteurs que je n'ai pas pris en compte.
 
+---
+
+           *1 ## ⚠️ Attention - Sauvegardes
+
+La modification des icônes de sauvegarde peut entraîner une corruption des données.
+
+Même si le nom et la taille du fichier restent identiques, certaines sauvegardes contiennent :
+- des checksums
+- des validations internes
+- une structure stricte
+
+👉 Toute modification peut rendre la sauvegarde inutilisable.
+
+💡 Il est fortement recommandé de faire un backup avant toute modification
