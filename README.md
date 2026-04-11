@@ -86,3 +86,6 @@ Même si le nom et la taille du fichier restent identiques, certaines sauvegarde
 👉 Toute modification peut rendre la sauvegarde inutilisable.
 
 💡 Il est fortement recommandé de faire un backup avant toute modification
+   
+   Non terminer, donc certains jeux le tool ne vous trouvera pas le chemins des images des saves ,  car pas dans le scan qui n'est pas mis en recursif trop long a scanner ,  c'est cibler, et ces pas dans la db , et les nom des images utiliser pour les saves aussi differe selon le jeu , il ne vous trouvera rien du faites que les jeux ne stockent pas leurs fichiers de la meme maniere ou il sont proteger ou dans home...
+   Les jeux en SSD externe sont supportes mais tout dependra des jeux eux meme , leur nom... 
