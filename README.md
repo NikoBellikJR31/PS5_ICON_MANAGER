@@ -39,13 +39,13 @@ Remplacez les icônes, backgrounds et visuels XMB de vos jeux PS5 — directemen
 - Placement
 - Backup des images avant changement puis restauration backup
 
-  Dans l'ideal pour le redimensionnement essayer de mettre au minimum des images proche des tailles respectif , sinon si l' image est trop petite par exemple une petite image pour un background xmb le tool va redimensionner mais upscale ces pas terrible.  ( tester sur une images 508x99 et 478x348 vers 1920x1080 ) sa sort assez bien. 
+  Dans l'ideal pour le redimensionnement essayer de mettre au minimum des images proche des tailles respectif , sinon si l' image est trop petite par exemple une petite image pour un background xmb le tool va redimensionner mais upscale ces pas terrible.
 
   Le fonctionnement est simple , vous double cliquer sur le .bat , installer les dependances , vous aller sur votre navigateur ( j'utilise Opera Gx pour l'historique des ip  ) vous taper localhost:8001 ou ctrl cliquer sur le link sur le cmd.
 
-   Vous rentrer ip/port , sa va scanner vos applications , vous cliquer sur votre jeu ou applications, cela va trouver vos images , vous changer a votre souhaits les images qu'il a '''trouver d'origine''' vous cliquer sur '''remplacer''' ( je n'ai pas mis scan partout sa prener trop de temps de chargement , mais c'est suffisant) pas besoin de renommer ou d'avoir specialement un png ou dds le tool se charge de tout convertir redimensionner ... et parallelement il creer des .bak de vos icons d'origine ,  si vous souhaiter les remettre a l'etat d'origine  ultérieurement vous cliquer sur 'restaurer backups' vous aurez le choix de restaurer que la jaquette ou seulement le background xmb celui du demarrage ... au choix
+   Vous rentrer ip/port , sa va scanner vos applications , vous cliquer sur votre jeu ou applications, cela va trouver vos images et vos aurez des pastille de couleurs en dessous selon leur emplacements, vous changer a votre souhaits les images qu'il a '''trouver d'origine''' vous cliquer sur '''remplacer''' ( je n'ai pas mis scan partout sa prener trop de temps de chargement , mais c'est suffisant) pas besoin de renommer ou d'avoir specialement un png ou dds le tool se charge de tout convertir redimensionner ... et parallelement il creer des .bak de vos icons d'origine ,  si vous souhaiter les remettre a l'etat d'origine  ultérieurement vous cliquer sur 'restaurer backups' vous aurez le choix de restaurer que la jaquette ou seulement le background xmb celui du demarrage ... au choix
 
-  Pour les jeux ou homebrews, prenons pour exemple Itemflow ou homebrew store il non pas de background xmb de base ces des generique , le tool ne vous trouvera rien non plus , vous pouvez rajouter une image tout de meme , vous cliquer sur remplacer vous mettez une image , cela va enregistrez un nouveau chemin dans la db auto , si vous les rajouter manuellement en ftp dans appmeta exemple il ne sont pas enregistrer donc la vous scannez et vous cliquer sur forcer chemins , vous aurez votre image xmb qui ne va plus disparaitre au redemarrage console (peut ne pas fonctionner pour tous les jeux selon leurs chemins...mais sa devrai le faire, je n'ai pas tous regarder encore ) netflix youtube autoloader fonctionnel ...
+  Pour les jeux ou homebrews, prenons pour exemple Itemflow ou homebrew store il non pas de background xmb de base ces des generique , le tool ne vous trouvera rien non plus , vous pouvez rajouter une image tout de meme , vous cliquer sur remplacer vous mettez une image , cela va les enregistrer ensuite vous cliquer sur forcer chemins et vous aurez votre image xmb qui ne va plus disparaitre au redemarrage console (peut ne pas fonctionner pour tous les jeux selon leurs chemins...mais sa devrai le faire, je n'ai pas tous regarder encore ) netflix youtube autoloader fonctionnel ...
 
   Certains changement demande de redemarrer la console.
   
@@ -71,7 +71,7 @@ Remplacez les icônes, backgrounds et visuels XMB de vos jeux PS5 — directemen
    Version beta 2.1 car j'ai differente versions avec d'autres options en test (sql intégré...) , probablement des bugs sur version actuelle , pas encore eu de soucis de mon cote , tester sur Ps5 6.02.
 
 ⚠️⚠️⚠️ Je suis pas un expert , apres 3 jours de test pas de problèmes avéré personnellement mais rester vigilant sa ne veut pas dire qu'il n'y en pas , il y a peut etres des facteurs que je n'ai pas pris en compte.
-
+        Fait avec l'aide d'un Agent. 
 ---
 
      *1 ## ⚠️ Attention - Sauvegardes
@@ -86,6 +86,3 @@ Même si le nom et la taille du fichier restent identiques, certaines sauvegarde
 👉 Toute modification peut rendre la sauvegarde inutilisable.
 
 💡 Il est fortement recommandé de faire un backup avant toute modification
-   
-   Non terminer, donc certains jeux le tool ne vous trouvera pas le chemins des images des saves ,  car pas dans le scan qui n'est pas mis en recursif trop long a scanner ,  c'est cibler, et ces pas dans la db , et les nom des images utiliser pour les saves aussi differe selon le jeu , il ne vous trouvera rien du faites que les jeux ne stockent pas leurs fichiers de la meme maniere ou il sont proteger ou dans home...
-   Les jeux en SSD externe sont supportes mais tout dependra des jeux eux meme , leur nom... 
