@@ -1,10 +1,12 @@
 <div align="center">
 
-<img src="assets/banner.png" width="500"/>
+<img src="assets/banner.png" width="700"/>
 
 # 🎮 PS5 Icon Manager
 
-Remplacez les icônes, backgrounds et visuels XMB de vos jeux PS5 — directement depuis votre navigateur.
+Modifier facilement les icônes, backgrounds et visuels XMB de votre PS5 — directement depuis votre pc 
+
+Un tool simple, rapide et automatisé pour personnaliser vos jeux et applications.
 
 <br>
 
@@ -19,70 +21,142 @@ Remplacez les icônes, backgrounds et visuels XMB de vos jeux PS5 — directemen
 
 ## 🎥 Demo
 
-[![Voir la vidéo](https://img.youtube.com/vi/ezQQhMrpd0Q/maxresdefault.jpg)](https://youtu.be/ezQQhMrpd0Q)
+[![Voir la vidéo](https://youtu.be/Qd5eI_aARTA?si=KuEdVHeBeDGRevRu)
 
 👉 Clique sur l’image pour voir la vidéo
 
 ---
 
-## 🚀 Fonctionnalités
+# 🚀 PS5 Icon Manager — Ce que fait le tool
 
-- 🎨 Modification des icônes (`icon0`)
-- 🖼️ Modification des backgrounds (`pic1`) (`pic0`)...
-- 🧩 Custom du background XMB meme si generic ( force un chemin...)
-- 💾  Images Savedata ⚠️⚠️ (pas terminer) Lire *1 👇
+PS5 Icon Manager permet de modifier rapidement les éléments visuels des jeux et applications PS5.
 
-👉 Glissez n’importe quelle image, le tool gère tout automatiquement :
-- Conversion
-- Redimensionnement
-- Renommage
-- Placement
-- Backup des images avant changement puis restauration backup
+Le tool détecte automatiquement les fichiers, convertit les images, crée des backups et applique les modifications.
 
-  Dans l'ideal pour le redimensionnement essayer de mettre au minimum des images proche des tailles respectif , sinon si l' image est trop petite par exemple une petite image pour un background xmb le tool va redimensionner mais upscale ces pas terrible.
+Aucune manipulation compliquée nécessaire.
 
-  Le fonctionnement est simple , vous double cliquer sur le .bat , installer les dependances , vous aller sur votre navigateur ( j'utilise Opera Gx pour l'historique des ip  ) vous taper localhost:8001 ou ctrl cliquer sur le link sur le cmd.
+Prérequis :
 
-   Vous rentrer ip/port , sa va scanner vos applications , vous cliquer sur votre jeu ou applications, cela va trouver vos images et vos aurez des pastille de couleurs en dessous selon leur emplacements, vous changer a votre souhaits les images qu'il a '''trouver d'origine''' vous cliquer sur '''remplacer''' ( je n'ai pas mis scan partout sa prener trop de temps de chargement , mais c'est suffisant) pas besoin de renommer ou d'avoir specialement un png ou dds le tool se charge de tout convertir redimensionner ... et parallelement il creer des .bak de vos icons d'origine ,  si vous souhaiter les remettre a l'etat d'origine  ultérieurement vous cliquer sur 'restaurer backups' vous aurez le choix de restaurer que la jaquette ou seulement le background xmb celui du demarrage ... au choix
+- Python 3.11 3.12 
+- PS5 avec FTP activé
+---
 
-  Pour les jeux ou homebrews, prenons pour exemple Itemflow ou homebrew store il non pas de background xmb de base ces des generique , le tool ne vous trouvera rien non plus , vous pouvez rajouter une image tout de meme , vous cliquer sur remplacer vous mettez une image , cela va les enregistrer ensuite vous cliquer sur forcer chemins et vous aurez votre image xmb qui ne va plus disparaitre au redemarrage console (peut ne pas fonctionner pour tous les jeux selon leurs chemins...mais sa devrai le faire, je n'ai pas tous regarder encore ) netflix youtube autoloader fonctionnel ...
+# 🎮 Fonctionnalités principales
 
-  Certains changement demande de redemarrer la console.
+## 🎨 Customisation visuelle
+
+- Modification des icônes 
+- Modification des backgrounds...
+- Custom backgrounds XMB (même génériques)
+- Support des images système
+- Support des images Savedata ⚠️ non terminer ...
+- Renommez vos applications et jeux
   
-  Vous avez la touche supprimer pour effacer directement , quand vous supprimer sa enleve aussi dans la db pour ne pas avoir des entrees fantome.
+Le tool gère automatiquement :
 
-  Vous avez inspecter db pour check vos emplacements...
+- Conversion des images
+- Redimensionnement automatique
+- Renommage automatique
+- Placement automatique
+- Création de backups
+- Restauration des images d'origine
 
-  Vous avez egalement un bouton test pour voir si vous etes encore synchro avec la console en cas de saturation en ftp...                                      Il y a les logs directement sur le cmd 
+ ## 🔐 Gestion automatique des permissions
+
+Le tool gère automatiquement les permissions des fichiers modifiés.
+
+Processus :
+
+1. Passage temporaire en 777
+2. Remplacement ou écriture des fichiers
+3. Remise automatique en 444
+
+Cela évite toute modification non souhaitée après remplacement.
+---
+
+## 🗄️ Database SQLite intégrée
+
+Le tool utilise une base SQLite interne pour gérer les données.
+
+Fonctionnalités :
+
+- SQLite intégré
+- Backup automatique de la database au démarrage
+- Inspection de la database
+- Restauration rapide en cas de problème... 
+
+---
+
+## 💾 Système de backups
+
+Fonctionnalités :
+
+- Backup automatique des images originales
+- Restauration sélective possible :
+  - Icônes
+  - Backgrounds
+  - XMB
+  - Configuration complète
+- Backup automatique de la database
+
+---
+
+### Fonctionnalités :
+
+- Connexion FTP vers la console
+- Scan automatique des applications
+- Détection automatique des images existantes
+- Remplacement simple des visuels
+- Logs en temps réel
+- Test de synchronisation FTP
+
+
+# 📦 Installation
+
+Deux méthodes disponibles.
+
+---
+
+## 🟢 Méthode 1
+
+Télécharger le fichier zip depuis les Releases. 
+
+Puis :
+
+- Lancer l'exécutable
+- Le tool est prêt à utiliser
+
+---
+
+## 🔵 Méthode 2
+
+- Telecharger les fichiers en zip
+- Lancez main.py 
+- Le serveur se lance tout seul
   
-  Pour vos modifications d'images si vous souhaiter les customiser il y a gimp et paint.net 
+---
+
+  Pour vos modifications d'images si vous souhaiter les customiser il y a gimp et paint.net ou des sites de wallpappers , icones...
                          - https://www.gimp.org/downloads/
                          - https://www.getpaint.net
 ---
 
-## ⚙️ Installation
+# ⚠️ Disclaimer
 
-### Prérequis
+Ce tool est encore en développement.
 
-- Python ( j'ai mis le 3.14 )
-- Windows 
-- PS5 avec FTP activer
+Même si aucun problème majeur n'a été détecté lors des tests, des bugs peuvent exister.
 
-   Version beta 2.1 car j'ai differente versions avec d'autres options en test (sql intégré...) , probablement des bugs sur version actuelle , pas encore eu de soucis de mon cote , tester sur Ps5 6.02.
+Utilisation à vos risques.
 
-⚠️⚠️⚠️ Je suis pas un expert , apres 3 jours de test pas de problèmes avéré personnellement mais rester vigilant sa ne veut pas dire qu'il n'y en pas , il y a peut etres des facteurs que je n'ai pas pris en compte.
-        Fait avec l'aide d'un Agent. 
 ---
 
-     *1 ## ⚠️ Attention - Sauvegardes
+# 🧠 À propos
 
-La modification des icônes de sauvegarde peut entraîner une corruption des données.
+Projet développé pour faciliter la customisation visuelle PS5.
 
-Même si le nom et la taille du fichier restent identiques, certaines sauvegardes contiennent:
-- des checksums
-- des validations internes
-- une structure stricte
+Fait avec l'aide de l'ia
 
-👉 Toute modification peut rendre la sauvegarde inutilisable.
+
 
 💡 Il est fortement recommandé de faire un backup avant toute modification
