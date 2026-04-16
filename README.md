@@ -21,7 +21,7 @@ Un tool simple, rapide et automatisé pour personnaliser vos jeux et application
 
 ## 🎥 Demo
 
-[![Voir la vidéo](https://www.youtube.com/watch?v=ezQQhMrpd0Q&t=158s)
+[![Voir la vidéo](https://youtu.be/ezQQhMrpd0Q?si=z-hKk_f1WtBKdedt)
 
 👉 Clique sur l’image pour voir la vidéo
 
