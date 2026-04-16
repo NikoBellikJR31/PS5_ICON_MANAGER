@@ -21,7 +21,7 @@ Un tool simple, rapide et automatisé pour personnaliser vos jeux et application
 
 ## 🎥 Demo
 
-[![Voir la vidéo](https://youtu.be/ezQQhMrpd0Q?si=z-hKk_f1WtBKdedt)
+[![Voir la vidéo](https://img.youtube.com/vi/ezQ0hMrpd00/0.jpg)](https://youtu.be/ezQ0hMrpd00)
 
 👉 Clique sur l’image pour voir la vidéo
 
@@ -37,7 +37,7 @@ Aucune manipulation compliquée nécessaire.
 
 Prérequis :
 
-- Python 3.11 3.12 
+- Python 3.11 3.12 avec la version web  , python non requis pour l'executable ( releases )
 - PS5 avec FTP activé
 ---
 
