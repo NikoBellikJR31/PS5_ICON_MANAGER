@@ -157,6 +157,3 @@ Projet développé pour faciliter la customisation visuelle PS5.
 
 Fait avec l'aide de l'ia
 
-
-
-💡 Il est fortement recommandé de faire un backup avant toute modification
