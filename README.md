@@ -47,7 +47,7 @@ Prérequis :
 
 - Modification des icônes 
 - Modification des backgrounds...
-- Custom backgrounds XMB (même génériques)
+- Custom backgrounds XMB (même appli systeme)
 - Support des images système
 - Support des images Savedata ⚠️ non terminer ...
 - Renommez vos applications et jeux
