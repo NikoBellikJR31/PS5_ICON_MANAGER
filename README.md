@@ -80,7 +80,6 @@ Le tool utilise une base SQLite interne pour gérer les données.
 Fonctionnalités :
 
 - SQLite intégré
-- Backup automatique de la database au démarrage
 - Inspection de la database
 - Restauration rapide en cas de problème... 
 
