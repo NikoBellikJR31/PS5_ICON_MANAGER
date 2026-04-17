@@ -89,7 +89,7 @@ Fonctionnalités :
 
 Fonctionnalités :
 
-- Backup automatique des images originales
+- Backup automatique des images originales ( a leur emplacement initial )
 - Restauration sélective possible :
   - Icônes
   - Backgrounds
