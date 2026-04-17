@@ -56,7 +56,6 @@ Le tool gère automatiquement :
 
 - Conversion des images
 - Redimensionnement automatique
-- Renommage automatique
 - Placement automatique
 - Création de backups
 - Restauration des images d'origine
