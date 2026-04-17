@@ -37,7 +37,7 @@ Aucune manipulation compliquée nécessaire.
 
 Prérequis :
 
-- Python 3.11 3.12 avec la version web  , python non requis pour l'executable ( releases )
+- Python 3.11 3.12 avec la version web  , python non requis pour l'executable (releases)
 - PS5 avec FTP activé
 ---
 
@@ -46,12 +46,13 @@ Prérequis :
 ## 🎨 Customisation visuelle
 
 - Modification des icônes 
-- Modification des backgrounds...
-- Custom backgrounds XMB (même appli systeme)
+- Modification écran d'accueil 
+- Modification écran de démarrage...
 - Support des images système
 - Support des images Savedata ⚠️ non terminer ...
 - Renommez vos applications et jeux
-  
+- Integrer un chemin dans la db , si aucun chemin n'ai creer
+
 Le tool gère automatiquement :
 
 - Conversion des images
@@ -122,7 +123,7 @@ Télécharger le fichier zip depuis les Releases.
 Puis :
 
 - Lancer l'exécutable
-- Le tool est prêt à utiliser
+- Le tool est prêt à être utiliser
 
 ---
 
