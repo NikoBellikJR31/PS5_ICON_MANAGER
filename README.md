@@ -146,8 +146,11 @@ Limitation :
 - suppression automatique des anciens backups
 
 ## 💾 Système de backups Db
-       - Créer une backup automatique au démarrage 
-          - Bouton restaurer Db 
+
+                           - Créer une backup automatique au démarrage 
+                           - Bouton restaurer Db pour restaurer Db
+
+
 ---
 
 ## 🔐 Gestion automatique des permissions
