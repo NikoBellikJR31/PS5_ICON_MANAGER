@@ -77,12 +77,17 @@ if __name__ == "__main__":
         sys.exit(1)
 
     import webview
+    storage_path = os.path.join(os.path.expanduser("~"), ".ps5_icon_manager")
+    try:
+        os.makedirs(storage_path, exist_ok=True)
+    except Exception:
+        storage_path = BASE_DIR
     window = webview.create_window(
-        "PS5 Icon Manager - fsociety v3.0",
+        "PS5 Icon Manager - fsociety v3.1",
         "http://127.0.0.1:8001",
         width=1280,
         height=800,
         min_size=(900, 600),
         background_color="#0a0a0a"
     )
-    webview.start()
+    webview.start(private_mode=False, storage_path=storage_path)
