@@ -145,13 +145,10 @@ Limitation :
 - maximum 5 backups par fichier
 - suppression automatique des anciens backups
 
-## 💾 Système de backups Db
-
-                           - Créer une backup automatique au démarrage 
-                           - Bouton restaurer Db pour restaurer Db
-
-
 ---
+
+ 💾 Système de backups Db 
+                - Backup Db creer au demarrage / Bouton restaurer Db pour la réinjecter              
 
 ## 🔐 Gestion automatique des permissions
 
