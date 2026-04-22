@@ -12,7 +12,7 @@ else:
 
 os.chdir(BASE_DIR)
 os.system("color 0A")
-os.system("title PS5 Icon Manager - fsociety v3.0")
+os.system("title PS5 Icon Manager - fsociety v3.1")
 
 GREEN = "\033[92m"
 RESET = "\033[0m"
@@ -35,7 +35,7 @@ def loading(msg):
 
 logo = r"""
 ╔════════════════════════════════════════════╗
-║     PS5 ICON MANAGER • FSOCIETY  v3.0      ║
+║     PS5 ICON MANAGER • FSOCIETY  v3.1      ║
 ╚════════════════════════════════════════════╝
 """
 
