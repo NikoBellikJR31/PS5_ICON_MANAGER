@@ -21,7 +21,6 @@ import traceback
 import ftplib
 
 import sys as _sys
-# Support mode EXE PyInstaller (frozen) ET mode script normal
 if getattr(_sys, 'frozen', False):
     ROOT_DIR = Path(_sys.executable).parent
 else:
@@ -32,7 +31,7 @@ CACHE_DIR.mkdir(exist_ok=True)
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 ftp_connections = {}
-user_home_cache = {}  # session_id -> user_home_id
+user_home_cache = {}  
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -167,7 +166,7 @@ async def ftp_upload_raw(session_id, data, path):
     if session_id in ftp_connections:
         conn = ftp_connections[session_id]
         ip, port = conn["ip"], conn["port"]
-        # FERMER aioftp pour liberer la connexion (PS5 = 1 seule connexion)
+        
         try:
             await conn["client"].quit()
         except:
@@ -180,7 +179,7 @@ async def ftp_upload_raw(session_id, data, path):
             f = ftplib.FTP()
             f.connect(ip, port, timeout=10)
             f.login()
-            # CWD au dossier parent puis STOR le fichier
+        
             parts = path.rsplit('/', 1)
             if len(parts) == 2:
                 f.cwd(parts[0])
@@ -197,7 +196,6 @@ async def ftp_upload_raw(session_id, data, path):
     loop = asyncio.get_event_loop()
     result = await loop.run_in_executor(None, _do_upload)
     
-    # Reconnecter aioftp apres
     if session_id in ftp_connections:
         try:
             new_ftp = aioftp.Client()
@@ -248,7 +246,6 @@ async def ftp_chmod(session_id_or_ftp, path, mode="0444"):
     loop = asyncio.get_event_loop()
     result = await loop.run_in_executor(None, _do_chmod)
     
-    # Reconnecter aioftp (ftplib a pu tuer la connexion sur PS5)
     if sid and sid in ftp_connections:
         try:
             new_ftp = aioftp.Client()
@@ -373,7 +370,6 @@ async def connect_ftp(connection: FTPConnection):
         ftp_connections[session_id] = {"client": ftp_client, "ip": connection.ip, "port": connection.port}
         history = save_ip_history(connection.ip, connection.port)
         
-        # Download app.db to cache on connect
         db_status = "non telechargee"
         try:
             logger.info("Downloading app.db to cache...")
@@ -384,7 +380,7 @@ async def connect_ftp(connection: FTPConnection):
                     f.write(db_data)
                 db_status = f"OK ({len(db_data)} bytes)"
                 logger.info(f"Cached app.db: {len(db_data)} bytes")
-                # Creer app.db.bak a chaque connexion (backup frais)
+      
                 bak_file = CACHE_DIR / "app.db.bak"
                 shutil.copy2(db_file, bak_file)
                 logger.info("app.db.bak cree (backup frais)")
@@ -393,7 +389,6 @@ async def connect_ftp(connection: FTPConnection):
             db_status = f"erreur: {e}"
             logger.warning(f"Could not cache app.db: {e}")
         
-        # Reconnect after DB download (FTP might have died)
         try:
             ftp_client = aioftp.Client()
             await ftp_client.connect(connection.ip, connection.port)
@@ -416,7 +411,7 @@ async def refresh_db(session_id: str):
         if db_data:
             with open(CACHE_DIR / "app.db", 'wb') as f:
                 f.write(db_data)
-            # Reconnect
+           
             await fresh_ftp(session_id)
             return {"success": True, "size": len(db_data)}
     except Exception as e:
@@ -454,12 +449,10 @@ async def scan_app(session_id: str, app_id: str):
     try:
         logger.info(f"=== SCAN {app_id} ===")
         
-        # Step 1: Query LOCAL cached DB (instant, no FTP!)
         db_scan = await query_db_for_app(app_id)
         concept_ids = db_scan["concept_ids"]
         logger.info(f"ConceptIds from cache: {concept_ids}")
         
-        # Step 2: Build dirs to scan (standard locations only)
         dirs = [f"/user/appmeta/{app_id}", f"/user/app/{app_id}/sce_sys"]
         for cid in concept_ids:
             dirs.append(f"/user/catalog_downloader/conceptmeta/{cid}")
@@ -475,7 +468,6 @@ async def scan_app(session_id: str, app_id: str):
         dirs = list(dict.fromkeys(dirs))
         logger.info(f"Dirs: {dirs}")
         
-        # Step 3: Fresh FTP for directory scanning
         ftp = await fresh_ftp(session_id)
         if not ftp:
             return JSONResponse(status_code=500, content={"success": False, "detail": "FTP reconnect failed"})
@@ -487,7 +479,6 @@ async def scan_app(session_id: str, app_id: str):
             img_files = [f for f in files if f["name"].lower().endswith(('.png', '.dds', '.jpg', '.jpeg', '.webp', '.bmp')) and 
                         any(f["name"].lower().startswith(t) for t in ["icon0", "pic0", "pic1", "pic2", "save_data"])]
             
-            # Only download first PNG or DDS for preview, list the rest
             preview_done = {}
             for f in img_files:
                 full_path = f"{dir_path}/{f['name']}"
@@ -533,7 +524,6 @@ async def scan_app(session_id: str, app_id: str):
                     "real_w": real_w, "real_h": real_h,
                 })
         
-        # Group
         grouped = {}
         for img in all_found:
             fname = img["file"].lower()
@@ -546,7 +536,6 @@ async def scan_app(session_id: str, app_id: str):
         for img_type in ["icon0", "pic0", "pic1", "pic2", "save_data"]:
             locs = grouped.get(img_type, [])
             
-            # Second pass: retry preview if first pass failed
             has_preview = any(loc.get("data") for loc in locs)
             if not has_preview and locs:
                 try:
@@ -586,20 +575,17 @@ async def replace_image(session_id: str, app_id: str, image_type: str = Form(...
         steps = []
         paths = [p.strip() for p in target_paths.split(',') if p.strip()]
         
-        # Detecter formats existants dans les cibles
         has_png = any(p.lower().endswith('.png') for p in paths)
         has_dds = any(p.lower().endswith('.dds') for p in paths)
         has_jpg = any(p.lower().endswith(('.jpg', '.jpeg')) for p in paths)
         
-        # Dimensions par defaut
         w, h = SIZES.get(image_type, (512, 512))
         
-        # Tenter de lire les dimensions originales depuis le premier fichier cible
         ftp = await fresh_ftp(session_id)
         if not ftp:
             return JSONResponse(status_code=500, content={"success": False, "detail": "FTP failed"})
         
-        orig_data_cache = {}  # path -> bytes (pour eviter double download)
+        orig_data_cache = {}  
         for target_path in paths:
             try:
                 old_data = await ftp_download(ftp, target_path, retries=1, delay=0.2)
@@ -628,7 +614,6 @@ async def replace_image(session_id: str, app_id: str, image_type: str = Form(...
                 except:
                     pass
         
-        # Lire et redimensionner l'image uploadee
         data = await file.read()
         img = Image.open(io.BytesIO(data))
         if img.mode != 'RGBA':
@@ -636,7 +621,6 @@ async def replace_image(session_id: str, app_id: str, image_type: str = Form(...
         img = img.resize((w, h), Image.Resampling.LANCZOS)
         steps.append(f"Redimensionne {w}x{h}")
         
-        # Generer UNIQUEMENT les formats necessaires
         png_bytes = None
         dds_bytes = None
         if has_png or has_jpg or (not has_dds):
@@ -659,11 +643,9 @@ async def replace_image(session_id: str, app_id: str, image_type: str = Form(...
                     steps.append(f"Skip {target_path.split('/')[-1]} (format non genere)")
                     continue
                 
-                # Debloquer le fichier (777) via ftplib avant ecriture
                 await ftp_chmod(session_id, target_path, "0777")
                 ftp = await fresh_ftp(session_id)
                 
-                # Backup
                 try:
                     old = orig_data_cache.get(target_path)
                     if not old:
@@ -675,7 +657,6 @@ async def replace_image(session_id: str, app_id: str, image_type: str = Form(...
                 except:
                     pass
                 
-                # Upload
                 await ftp_upload(ftp, file_bytes, target_path)
                 steps.append(f"Remplace {target_path.split('/')[-1]}")
                 replaced += 1
@@ -688,7 +669,6 @@ async def replace_image(session_id: str, app_id: str, image_type: str = Form(...
                 except:
                     break
         
-        # Copier vers sce_sys - UNIQUEMENT les formats trouves
         sce_sys_path = f"/user/app/{app_id}/sce_sys"
         try:
             await ftp.make_directory(sce_sys_path)
@@ -716,7 +696,6 @@ async def replace_image(session_id: str, app_id: str, image_type: str = Form(...
         
         steps.append(f"Total: {replaced} fichiers")
         
-        # CHMOD via ftplib a la fin (apres tous les uploads aioftp)
         all_chmod_paths = list(paths) + [f"{sce_sys_path}/{image_type}{ext}" for ext, fb in sce_formats]
         try:
             await ftp.quit()
@@ -744,7 +723,6 @@ async def delete_image(session_id: str, app_id: str, image_type: str = Form(...)
         steps = []
         deleted = 0
         
-        # Collect all paths to delete
         all_targets = set()
         
         if paths:
@@ -753,13 +731,11 @@ async def delete_image(session_id: str, app_id: str, image_type: str = Form(...)
                 if p:
                     all_targets.add(p)
         
-        # Standard locations
         locations = [f"/user/appmeta/{app_id}", f"/user/app/{app_id}/sce_sys"]
         for loc in locations:
             for ext in [".png", ".dds", ".jpg", ".jpeg"]:
                 all_targets.add(f"{loc}/{image_type}{ext}")
         
-        # Delete all in one pass
         for target in all_targets:
             try:
                 await ftp.remove(target)
@@ -768,7 +744,6 @@ async def delete_image(session_id: str, app_id: str, image_type: str = Form(...)
             except:
                 pass
         
-        # Delete backups
         for loc in locations:
             try:
                 ftp = await fresh_ftp(session_id)
@@ -784,7 +759,6 @@ async def delete_image(session_id: str, app_id: str, image_type: str = Form(...)
             except:
                 pass
         
-        # Clean DB entry for this image type
         db_path = get_cached_db()
         if db_path:
             try:
@@ -810,7 +784,6 @@ async def delete_image(session_id: str, app_id: str, image_type: str = Form(...)
                                 pass
                         await db.commit()
                     
-                    # Re-upload DB
                     ftp = await fresh_ftp(session_id)
                     if ftp:
                         with open(db_path, 'rb') as f:
@@ -845,9 +818,6 @@ async def add_new_image(session_id: str, app_id: str, image_type: str = Form(...
         png_bytes = png_buf.getvalue()
         dds_bytes = png_to_dds_bytes(img)
         
-        # Upload to BOTH locations:
-        # 1. /user/appmeta/{app_id}/ (standard location)
-        # 2. /user/app/{app_id}/sce_sys/ (where PS5 reads backgrounds for homebrews/games)
         upload_dirs = [
             f"/user/appmeta/{app_id}",
             f"/user/app/{app_id}/sce_sys",
@@ -892,11 +862,9 @@ async def force_db_path(session_id: str, app_id: str, image_type: str = Form(...
     steps = []
     ts = int(datetime.now().timestamp())
     
-    # PS5 reads pic0 as DDS, icon0 as PNG
     new_dds_path = f"/user/appmeta/{app_id}/{image_type}.dds?ts={ts}"
     new_png_path = f"/user/appmeta/{app_id}/{image_type}.png?ts={ts}"
     
-    # Columns to force for each image type (DDS for backgrounds, PNG for icons)
     col_targets = {
         "pic0": [("pic0Info", new_dds_path)],
         "icon0": [("icon0Info", new_png_path)],
@@ -916,12 +884,9 @@ async def force_db_path(session_id: str, app_id: str, image_type: str = Form(...
             cursor = await db.execute("SELECT name FROM sqlite_master WHERE type='table'")
             tables = [r[0] for r in await cursor.fetchall()]
             
-            # MUST target tbl_contentinfo specifically - that's the ONLY table PS5 reads for XMB backgrounds
-            # Other tables (tbl_concepticoninfo, tbl_info) are ignored by PS5 for this purpose
             target_table = None
             where_col = None
             
-            # First pass: find tbl_contentinfo by exact name pattern
             for table in tables:
                 if "contentinfo" in table.lower() and "concept" not in table.lower():
                     try:
@@ -957,13 +922,12 @@ async def force_db_path(session_id: str, app_id: str, image_type: str = Form(...
             if not target_table:
                 steps.append(f"ERREUR: tbl_contentinfo introuvable pour {app_id}")
                 return {"success": True, "steps": steps, "db_modified": False}
-            
-            # Get current columns
+         
             cursor = await db.execute(f"PRAGMA table_info({target_table})")
             existing_cols = [c[1] for c in await cursor.fetchall()]
             
             for target_col, new_val in target_updates:
-                # CREATE column if it doesn't exist
+                
                 if target_col not in existing_cols:
                     try:
                         await db.execute(f"ALTER TABLE {target_table} ADD COLUMN {target_col} TEXT")
@@ -973,7 +937,6 @@ async def force_db_path(session_id: str, app_id: str, image_type: str = Form(...
                         steps.append(f"Erreur creation colonne: {e}")
                         continue
                 
-                # UPDATE the column with the new path
                 try:
                     await db.execute(
                         f"UPDATE {target_table} SET {target_col} = ? WHERE CAST({where_col} AS TEXT) LIKE ?",
@@ -990,7 +953,6 @@ async def force_db_path(session_id: str, app_id: str, image_type: str = Form(...
             steps.append("Aucune modification effectuee")
             return {"success": True, "steps": steps, "db_modified": False}
         
-        # Re-upload modified app.db to PS5
         steps.append("Upload app.db vers PS5...")
         ftp = await fresh_ftp(session_id)
         if not ftp:
@@ -1016,13 +978,11 @@ async def ftp_ping(session_id: str):
     if session_id not in ftp_connections:
         return {"alive": False}
     try:
-        # Just check if session exists and try a lightweight operation
-        # Do NOT use fresh_ftp() here - it kills active connections!
         client = ftp_connections[session_id]["client"]
         await asyncio.wait_for(client.list("/"), timeout=5.0)
         return {"alive": True}
     except:
-        # Connection dead - try to reconnect silently
+        
         try:
             conn = ftp_connections[session_id]
             new_client = aioftp.Client()
@@ -1048,7 +1008,7 @@ async def list_backups(session_id: str, app_id: str):
             return JSONResponse(status_code=500, content={"success": False, "detail": "FTP failed"})
         
         backups = []
-        # Scan all possible directories for .bak_ files
+        
         db_scan = await query_db_for_app(app_id)
         concept_ids = db_scan.get("concept_ids", [])
         
@@ -1065,7 +1025,7 @@ async def list_backups(session_id: str, app_id: str):
                 async for path, info in ftp.list(dir_path):
                     fname = str(path).split('/')[-1]
                     if '.bak_' in fname:
-                        # Extract original filename and timestamp
+                        
                         parts = fname.split('.bak_')
                         original = parts[0]
                         timestamp = parts[1] if len(parts) > 1 else '?'
@@ -1085,7 +1045,57 @@ async def list_backups(session_id: str, app_id: str):
                 except:
                     pass
         
-        return {"success": True, "backups": backups}
+        groups = {}
+        for bk in backups:
+            groups.setdefault(bk["restore_to"], []).append(bk)
+        kept = []
+        to_delete = []
+        for key, grp in groups.items():
+            grp.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+            kept.extend(grp[:5])
+            to_delete.extend(grp[5:])
+        for bk in to_delete:
+            try:
+                await asyncio.sleep(0.1)
+                ftp = await fresh_ftp(session_id)
+                if ftp:
+                    await ftp.remove(bk["path"])
+            except:
+                pass
+        
+        return {"success": True, "backups": kept}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"success": False, "detail": str(e)})
+
+@api_router.get("/ftp/backup-preview")
+async def backup_preview(session_id: str, path: str):
+    """Download a backup file and return base64 preview"""
+    if session_id not in ftp_connections:
+        return JSONResponse(status_code=400, content={"success": False, "detail": "Not connected"})
+    try:
+        ftp = await fresh_ftp(session_id)
+        if not ftp:
+            return {"success": False, "detail": "FTP failed"}
+        data = await ftp_download(ftp, path, retries=2, delay=0.4)
+        if not data:
+            return {"success": False, "detail": "download failed"}
+        low = path.lower()
+        b64 = None
+        if '.dds' in low:
+            b64 = dds_to_png_base64(data)
+        else:
+            try:
+                pimg = Image.open(io.BytesIO(data))
+                pimg.thumbnail((512, 512))
+                out = io.BytesIO()
+                pimg.save(out, format='PNG')
+                out.seek(0)
+                b64 = base64.b64encode(out.read()).decode('utf-8')
+            except:
+                b64 = None
+        if not b64:
+            return {"success": False, "detail": "not an image"}
+        return {"success": True, "data": "data:image/png;base64," + b64}
     except Exception as e:
         return JSONResponse(status_code=500, content={"success": False, "detail": str(e)})
 
@@ -1102,22 +1112,18 @@ async def restore_backup(session_id: str, app_id: str, backup_path: str = Form(.
         
         steps = []
         
-        # Download backup
         data = await ftp_download(ftp, backup_path, retries=3, delay=0.5)
         if not data:
             return JSONResponse(status_code=404, content={"success": False, "detail": f"Backup introuvable: {backup_path}"})
         steps.append(f"Telecharge backup ({len(data)}b)")
         
-        # Upload to original path - debloquer d'abord
         await ftp_chmod(session_id, restore_to, "0777")
         ftp = await fresh_ftp(session_id)
         await ftp_upload(ftp, data, restore_to, retries=3, delay=1.0)
         steps.append(f"Restaure: {restore_to}")
         
-        # CHMOD 444 apres
         await ftp_chmod(session_id, restore_to, "0444")
         
-        # Delete backup file
         try:
             await asyncio.sleep(0.3)
             ftp = await fresh_ftp(session_id)
@@ -1137,7 +1143,7 @@ async def restore_all_backups(session_id: str, app_id: str):
         return JSONResponse(status_code=400, content={"success": False, "detail": "Not connected"})
     
     try:
-        # First list all backups
+        
         list_resp = await list_backups(session_id, app_id)
         if isinstance(list_resp, JSONResponse):
             return list_resp
@@ -1146,7 +1152,7 @@ async def restore_all_backups(session_id: str, app_id: str):
         if not backups:
             return {"success": True, "steps": ["Aucun backup trouve"], "restored": 0}
         
-        # Group by original file, keep most recent
+        
         by_original = {}
         for bk in backups:
             key = bk["restore_to"]
@@ -1165,16 +1171,15 @@ async def restore_all_backups(session_id: str, app_id: str):
                 
                 data = await ftp_download(ftp, bk["path"], retries=2, delay=0.5)
                 if data:
-                    # Debloquer avant ecriture
+                    
                     await ftp_chmod(session_id, restore_to, "0777")
                     ftp = await fresh_ftp(session_id)
                     await ftp_upload(ftp, data, restore_to, retries=2, delay=0.5)
-                    # Verrouiller apres
+                    
                     await ftp_chmod(session_id, restore_to, "0444")
                     restored += 1
                     steps.append(f"Restaure: {bk['original']} ({bk['dir'].split('/')[-1]})")
                     
-                    # Delete backup
                     try:
                         await asyncio.sleep(0.3)
                         ftp = await fresh_ftp(session_id)
@@ -1190,7 +1195,6 @@ async def restore_all_backups(session_id: str, app_id: str):
     except Exception as e:
         return JSONResponse(status_code=500, content={"success": False, "detail": str(e)})
 
-# ===== PARAM.SFO PARSER =====
 def parse_sfo(data: bytes) -> dict:
     """Parse a PS4/PS5 param.sfo binary file and return key-value pairs"""
     if len(data) < 0x14 or data[0:4] != b'\x00PSF':
@@ -1210,16 +1214,14 @@ def parse_sfo(data: bytes) -> dict:
         data_max_len = struct.unpack_from('<I', data, offset + 8)[0]
         data_offset = struct.unpack_from('<I', data, offset + 12)[0]
         
-        # Read key name
         key_end = data.index(b'\x00', key_table_start + key_offset)
         key_name = data[key_table_start + key_offset:key_end].decode('utf-8', errors='replace')
         
-        # Read value
         val_start = data_table_start + data_offset
-        if data_fmt == 0x0204:  # UTF-8 string
+        if data_fmt == 0x0204:  
             val_end = val_start + data_len
             val = data[val_start:val_end].rstrip(b'\x00').decode('utf-8', errors='replace')
-        elif data_fmt == 0x0404:  # Integer
+        elif data_fmt == 0x0404:  
             val = struct.unpack_from('<I', data, val_start)[0]
         else:
             val = data[val_start:val_start + data_len].hex()
@@ -1272,7 +1274,6 @@ async def scan_sfo(session_id: str, app_id: str):
         if not ftp:
             return JSONResponse(status_code=500, content={"success": False, "detail": "FTP failed"})
         
-        # Possible locations for param.sfo
         sfo_paths = [
             f"/user/app/{app_id}/sce_sys/param.sfo",
             f"/system_data/priv/appmeta/{app_id}/param.sfo",
@@ -1303,12 +1304,10 @@ async def scan_sfo(session_id: str, app_id: str):
         if not sfo_data:
             return {"success": True, "found": False, "checked": checked}
         
-        # Parse SFO
         entries = parse_sfo(sfo_data)
         title = entries.get("TITLE", {}).get("value", "???")
         title_max = entries.get("TITLE", {}).get("max_len", 0)
         
-        # Get title from DB too
         db_title = None
         db_path = get_cached_db()
         if db_path:
@@ -1341,7 +1340,6 @@ async def scan_sfo(session_id: str, app_id: str):
             except:
                 pass
         
-        # Build SFO summary
         sfo_info = {}
         for k, v in entries.items():
             sfo_info[k] = v["value"]
@@ -1360,7 +1358,6 @@ async def scan_sfo(session_id: str, app_id: str):
         logger.error(f"SFO scan error: {traceback.format_exc()}")
         return JSONResponse(status_code=500, content={"success": False, "detail": str(e)})
 
-# ===== RESTORE DB ENDPOINT =====
 @api_router.post("/ftp/restore-db")
 async def restore_db_backup(session_id: str):
     """Restaurer app.db depuis app.db.bak"""
@@ -1375,17 +1372,15 @@ async def restore_db_backup(session_id: str):
     
     steps = []
     try:
-        # Sauvegarder la version actuelle avant restauration
+        
         ts = datetime.now().strftime("%Y%m%d_%H%M%S")
         pre_restore = CACHE_DIR / f"app.db.pre_restore_{ts}"
         shutil.copy2(str(db_path), str(pre_restore))
         steps.append(f"Sauvegarde pre-restore: {pre_restore.name}")
-        
-        # Restaurer depuis bak
+       
         shutil.copy2(str(bak_path), str(db_path))
         steps.append("app.db restauree depuis app.db.bak")
         
-        # Re-uploader vers PS5
         ftp = await fresh_ftp(session_id)
         if not ftp:
             steps.append("ERREUR: FTP reconnexion echouee - DB restauree localement seulement")
@@ -1402,7 +1397,6 @@ async def restore_db_backup(session_id: str):
         logger.error(f"Restore DB error: {traceback.format_exc()}")
         return JSONResponse(status_code=500, content={"success": False, "detail": str(e)})
 
-# ===== RENAME APP (DB ONLY) =====
 @api_router.post("/ftp/rename-app/{app_id}")
 async def rename_app(session_id: str, app_id: str, new_name: str = Form(...)):
     """Renommer une app dans la DB uniquement (jeux seulement, champs existants)"""
@@ -1415,7 +1409,7 @@ async def rename_app(session_id: str, app_id: str, new_name: str = Form(...)):
     
     steps = []
     try:
-        # Backup horodate
+        
         ts = datetime.now().strftime("%Y%m%d_%H%M%S")
         backup = str(CACHE_DIR / f"app.db.bak_{ts}")
         shutil.copy2(db_path, backup)
@@ -1427,7 +1421,7 @@ async def rename_app(session_id: str, app_id: str, new_name: str = Form(...)):
             tables = [r[0] for r in await cursor.fetchall()]
             
             for table in tables:
-                # Scanner tbl_contentinfo ET tbl_conceptmetadata
+                
                 tl = table.lower()
                 if not ("contentinfo" in tl or "conceptmetadata" in tl or "iconinfo" in tl):
                     continue
@@ -1435,7 +1429,6 @@ async def rename_app(session_id: str, app_id: str, new_name: str = Form(...)):
                     cursor = await db.execute(f"PRAGMA table_info({table})")
                     cols = [c[1] for c in await cursor.fetchall()]
                     
-                    # Trouver la ligne pour cet app_id
                     where_col = None
                     for wc in ["icon0Info", "metaDataPath", "titleId", "localConceptId", "conceptId"]:
                         if wc in cols:
@@ -1450,7 +1443,6 @@ async def rename_app(session_id: str, app_id: str, new_name: str = Form(...)):
                     if not where_col:
                         continue
                     
-                    # 1) Modifier les colonnes de nom si elles existent
                     name_cols = [c for c in cols if c.lower() in ("titlename", "title", "name", "conceptname")]
                     for nc in name_cols:
                         await db.execute(
@@ -1460,7 +1452,6 @@ async def rename_app(session_id: str, app_id: str, new_name: str = Form(...)):
                         updated += 1
                         steps.append(f"UPDATE {table}.{nc} = '{new_name}'")
                     
-                    # 2) Modifier AppInfoJson si la colonne existe (PS5 lit le titre ici)
                     if "AppInfoJson" in cols:
                         cursor = await db.execute(
                             f"SELECT rowid, AppInfoJson FROM {table} WHERE CAST({where_col} AS TEXT) LIKE ?",
@@ -1474,7 +1465,7 @@ async def rename_app(session_id: str, app_id: str, new_name: str = Form(...)):
                             try:
                                 info = json.loads(raw_json) if isinstance(raw_json, str) else raw_json
                                 modified = False
-                                # Cles possibles pour le nom dans AppInfoJson
+                                
                                 name_keys = ("TITLE", "TITLE_00", "concept_name", "_concept_name")
                                 if isinstance(info, list):
                                     for item in info:
@@ -1507,7 +1498,6 @@ async def rename_app(session_id: str, app_id: str, new_name: str = Form(...)):
             steps.append("Aucun champ de nom trouve dans la DB pour ce jeu")
             return {"success": True, "steps": steps, "renamed": False}
         
-        # Upload DB vers PS5
         ftp = await fresh_ftp(session_id)
         if ftp:
             with open(db_path, 'rb') as f:
@@ -1523,7 +1513,6 @@ async def rename_app(session_id: str, app_id: str, new_name: str = Form(...)):
         logger.error(f"Rename error: {traceback.format_exc()}")
         return JSONResponse(status_code=500, content={"success": False, "detail": str(e)})
 
-# ===== TOGGLE APP VISIBILITY =====
 @api_router.post("/ftp/toggle-visibility/{app_id}")
 async def toggle_visibility(session_id: str, app_id: str, visible: str = Form(...)):
     """Masquer/afficher une app dans la DB (visible=0 ou visible=1)"""
@@ -1549,20 +1538,18 @@ async def toggle_visibility(session_id: str, app_id: str, visible: str = Form(..
             
             for table in tables:
                 tl = table.lower()
-                if "contentinfo" not in tl:
+                if "iconinfo" not in tl:
                     continue
                 try:
                     cursor = await db.execute(f"PRAGMA table_info({table})")
                     cols = [c[1] for c in await cursor.fetchall()]
                     
-                    # Chercher colonne visible/hidden
                     vis_col = None
                     for vc in ["visible", "isVisible", "hidden", "disabled"]:
                         if vc in cols:
                             vis_col = vc
                             break
                     
-                    # Chercher colonne WHERE
                     where_col = None
                     for wc in ["titleId", "icon0Info", "metaDataPath", "localConceptId", "conceptId"]:
                         if wc in cols:
@@ -1593,7 +1580,6 @@ async def toggle_visibility(session_id: str, app_id: str, visible: str = Form(..
             steps.append("La PS5 n'utilise peut-etre pas ce systeme")
             return {"success": True, "steps": steps, "toggled": False}
         
-        # Upload DB
         ftp = await fresh_ftp(session_id)
         if ftp:
             with open(db_path, 'rb') as f:
@@ -1607,15 +1593,76 @@ async def toggle_visibility(session_id: str, app_id: str, visible: str = Form(..
         logger.error(f"Toggle visibility error: {traceback.format_exc()}")
         return JSONResponse(status_code=500, content={"success": False, "detail": str(e)})
 
-# ===== SYSTEM APPS SCAN =====
+@api_router.post("/ftp/force-sys-pic0/{app_id}")
+async def force_sys_pic0(session_id: str, app_id: str, pic0_path: str = Form(...)):
+    """Forcer un chemin pic0 dans la DB pour une app systeme"""
+    if session_id not in ftp_connections:
+        return JSONResponse(status_code=400, content={"success": False, "detail": "Not connected"})
+    db_path = get_cached_db()
+    if not db_path:
+        return JSONResponse(status_code=400, content={"success": False, "detail": "DB pas en cache"})
+    steps = []
+    try:
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+        shutil.copy2(db_path, str(CACHE_DIR / f"app.db.bak_{ts}"))
+        steps.append(f"Backup DB")
+        async with aiosqlite.connect(db_path) as db:
+            await db.execute(
+                "UPDATE tbl_contentinfo SET pic0Info = ? WHERE titleId = ?",
+                (pic0_path, app_id)
+            )
+            await db.commit()
+            steps.append(f"tbl_contentinfo.pic0Info = {pic0_path}")
+        ftp = await fresh_ftp(session_id)
+        if ftp:
+            with open(db_path, 'rb') as f:
+                db_data = f.read()
+            await ftp_upload(ftp, db_data, "/system_data/priv/mms/app.db", retries=3, delay=1.0)
+            steps.append(f"DB uploadee ({len(db_data)} bytes)")
+            steps.append("Redemarrez la PS5")
+        return {"success": True, "steps": steps}
+    except Exception as e:
+        return JSONResponse(status_code=500, content={"success": False, "detail": str(e)})
+
+@api_router.get("/db/game-name/{app_id}")
+async def get_game_name(app_id: str):
+    """Recuperer le nom du jeu depuis la DB"""
+    db_path = get_cached_db()
+    if not db_path:
+        return {"name": None}
+    try:
+        async with aiosqlite.connect(db_path) as db:
+            cursor = await db.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            tables = [r[0] for r in await cursor.fetchall()]
+            for table in tables:
+                if "iconinfo" not in table.lower() or "concept" in table.lower():
+                    continue
+                try:
+                    cursor = await db.execute(
+                        f"SELECT titleName FROM {table} WHERE titleId = ?",
+                        (app_id,)
+                    )
+                    row = await cursor.fetchone()
+                    if row and row[0]:
+                        return {"name": row[0]}
+                except:
+                    continue
+        return {"name": None}
+    except:
+        return {"name": None}
+
 SYSTEM_APP_ENTRIES = [
     {"path": "/system_ex/rnps/apps/NPXS40016/appdb/NPXS40056", "label": "NPXS40016", "filter": None},
     {"path": "/system_ex/rnps/apps/NPXS40071/appdb/default", "label": "NPXS40071", "filter": None},
     {"path": "/system_ex/rnps/apps/NPXS40071/appdb/NPXS40139", "label": "NPXS40139", "filter": None},
     {"path": "/system_ex/rnps/apps/NPXS40075/appdb/default", "label": "NPXS40075", "filter": None},
     {"path": "/system_ex/rnps/apps/NPXS40075/assets/src/assets/texture", "label": "NPXS40075 texture", "filter": "icon0"},
+    {"path": "/system_ex/rnps/apps/NPXS40047/appdb/default", "label": "NPXS40047", "filter": None},
     {"path": "/system_ex/app/NPXS40140/sce_sys", "label": "NPXS40140 Blu-ray", "filter": None},
     {"path": "/system_ex/vsh_asset", "label": "VSH Assets (BG)", "filter": "bg_"},
+    {"path": "/system_ex/rnps/apps/NPXS40016/appdb/NPXS40054", "label": "NPXS40054", "filter": None},
+    {"path": "/system_ex/rnps/apps/NPXS40016/appdb/NPXS40053", "label": "NPXS40053", "filter": None},
+    {"path": "/system_ex/rnps/apps/NPXS40037/appdb/default", "label": "NPXS40037", "filter": None},
 ]
 
 @api_router.get("/ftp/scan-system-apps")
@@ -1636,10 +1683,9 @@ async def scan_system_apps(session_id: str):
             result = {"app_id": entry["label"], "path": sys_path, "files": [], "error": None}
             try:
                 files = await ftp_list_dir(ftp, sys_path)
-                # Inclure images + fichiers backup .bak_
+                
                 img_files = [f for f in files if f["name"].lower().endswith(('.png', '.dds', '.jpg', '.jpeg')) or '.bak_' in f["name"]]
                 
-                # Appliquer filtre si specifie (ex: "icon0" -> seulement icon0.* et leurs backups)
                 if filt:
                     img_files = [f for f in img_files if f["name"].lower().startswith(filt) or ('.bak_' in f["name"] and f["name"].lower().startswith(filt))]
                 
@@ -1741,8 +1787,6 @@ async def scan_single_system_app(session_id: str, index: int):
     except Exception as e:
         return JSONResponse(status_code=500, content={"success": False, "detail": str(e)})
 
-
-# ===== REPLACE SYSTEM APP IMAGE =====
 @api_router.post("/ftp/replace-system-image")
 async def replace_system_image(session_id: str, target_path: str = Form(...), file: UploadFile = File(...)):
     """Remplacer une image (system ou save) avec backup local"""
@@ -1755,12 +1799,11 @@ async def replace_system_image(session_id: str, target_path: str = Form(...), fi
         if not ftp:
             return JSONResponse(status_code=500, content={"success": False, "detail": "FTP failed"})
         
-        # Detecter dimensions originales + backup LOCAL
         w, h = 512, 512
         try:
             old_data = await ftp_download(ftp, target_path, retries=2, delay=0.5)
             if old_data and len(old_data) > 128:
-                # Backup en LOCAL (pas sur PS5 - system_ex est en lecture seule)
+                
                 ts = datetime.now().strftime("%Y%m%d_%H%M%S")
                 fname = target_path.split('/')[-1]
                 bak_local = CACHE_DIR / f"{fname}.bak_{ts}"
@@ -1768,7 +1811,6 @@ async def replace_system_image(session_id: str, target_path: str = Form(...), fi
                     bf.write(old_data)
                 steps.append(f"Backup local: {bak_local.name}")
                 
-                # Aussi essayer backup sur PS5 (marchera seulement si pas system_ex)
                 try:
                     ftp = await fresh_ftp(session_id)
                     await ftp_upload(ftp, old_data, f"{target_path}.bak_{ts}")
@@ -1776,7 +1818,6 @@ async def replace_system_image(session_id: str, target_path: str = Form(...), fi
                 except:
                     steps.append("Backup PS5 impossible (chemin protege)")
                 
-                # Dimensions
                 if target_path.lower().endswith('.dds') and len(old_data) >= 20:
                     oh = struct.unpack_from('<I', old_data, 12)[0]
                     ow = struct.unpack_from('<I', old_data, 16)[0]
@@ -1798,14 +1839,12 @@ async def replace_system_image(session_id: str, target_path: str = Form(...), fi
         
         steps.append(f"Dimensions: {w}x{h}")
         
-        # Lire et redimensionner
         data = await file.read()
         img = Image.open(io.BytesIO(data))
         if img.mode != 'RGBA':
             img = img.convert('RGBA')
         img = img.resize((w, h), Image.Resampling.LANCZOS)
         
-        # Generer le bon format (PNG uniquement sauf si cible est .dds)
         if target_path.lower().endswith('.dds'):
             file_bytes = png_to_dds_bytes(img)
         else:
@@ -1813,7 +1852,6 @@ async def replace_system_image(session_id: str, target_path: str = Form(...), fi
             img.save(png_buf, format="PNG")
             file_bytes = png_buf.getvalue()
         
-        # Upload avec gestion erreurs
         ftp = await fresh_ftp(session_id)
         if not ftp:
             return JSONResponse(status_code=500, content={"success": False, "detail": "FTP reconnect failed"})
@@ -1821,7 +1859,6 @@ async def replace_system_image(session_id: str, target_path: str = Form(...), fi
         uploaded = False
         fallback_path = None
         
-        # Essai 1: upload direct via aioftp (sans CHMOD d'abord)
         try:
             ftp = await fresh_ftp(session_id)
             await ftp_upload(ftp, file_bytes, target_path)
@@ -1830,7 +1867,6 @@ async def replace_system_image(session_id: str, target_path: str = Form(...), fi
         except:
             pass
         
-        # Essai 2: CHMOD 666 + aioftp
         if not uploaded:
             await ftp_chmod(session_id, target_path, "0666")
             try:
@@ -1841,7 +1877,6 @@ async def replace_system_image(session_id: str, target_path: str = Form(...), fi
             except:
                 pass
         
-        # Essai 3: ftplib avec CWD
         if not uploaded:
             steps.append("aioftp echoue, essai ftplib...")
             ok = await ftp_upload_raw(session_id, file_bytes, target_path)
@@ -1849,7 +1884,6 @@ async def replace_system_image(session_id: str, target_path: str = Form(...), fi
                 uploaded = True
                 steps.append("Upload ftplib OK")
         
-        # Essai 4: FALLBACK - upload vers /user/app/{app_id}/sce_sys/
         if not uploaded:
             path_parts = target_path.split('/')
             fallback_app_id = None
@@ -1863,10 +1897,8 @@ async def replace_system_image(session_id: str, target_path: str = Form(...), fi
                 fallback_path = f"/user/app/{fallback_app_id}/sce_sys/{fname}"
                 steps.append(f"Chemin source protege, fallback: {fallback_path}")
                 
-                # CHMOD 666 sur le fallback (au cas ou il existe deja en 444)
                 await ftp_chmod(session_id, fallback_path, "0666")
                 
-                # Creer dossier via ftplib
                 def _mkd():
                     try:
                         f2 = ftplib.FTP()
@@ -1885,13 +1917,12 @@ async def replace_system_image(session_id: str, target_path: str = Form(...), fi
                 if ip_addr:
                     await asyncio.get_event_loop().run_in_executor(None, _mkd)
                 
-                # Upload via ftplib directement (plus fiable)
                 ok = await ftp_upload_raw(session_id, file_bytes, fallback_path)
                 if ok:
                     uploaded = True
                     steps.append(f"Upload fallback ftplib OK")
                 else:
-                    # Essai aioftp
+         
                     try:
                         ftp = await fresh_ftp(session_id)
                         await ftp_upload(ftp, file_bytes, fallback_path)
@@ -1918,7 +1949,6 @@ async def replace_system_image(session_id: str, target_path: str = Form(...), fi
         logger.error(f"Replace system image error: {traceback.format_exc()}")
         return JSONResponse(status_code=500, content={"success": False, "detail": str(e)})
 
-# ===== DEEP SAVE DATA SCAN =====
 @api_router.get("/ftp/scan-save-data/{app_id}")
 async def scan_save_data(session_id: str, app_id: str):
     """Scan profond dans /system_ex/app/{app_id}/ pour trouver save*.png"""
@@ -1934,7 +1964,6 @@ async def scan_save_data(session_id: str, app_id: str):
         found = []
         scanned = []
         
-        # Scan recursif jusqu'a profondeur 10
         async def scan_dir(path, depth=0):
             nonlocal ftp
             if depth > 10:
@@ -1951,7 +1980,7 @@ async def scan_save_data(session_id: str, app_id: str):
                     if item["type"] == "dir":
                         await scan_dir(full, depth + 1)
                     elif item["name"].lower().startswith("save") and item["name"].lower().endswith(".png"):
-                        # Trouve un save*.png ! Telecharger preview
+                        
                         b64 = None
                         size = 0
                         try:
@@ -1992,7 +2021,6 @@ async def scan_save_data(session_id: str, app_id: str):
 
 app.include_router(api_router)
 
-# ===== DB EXPLORER ENDPOINTS =====
 db_router = APIRouter(prefix="/api/db")
 
 @db_router.get("/tables")
@@ -2067,7 +2095,7 @@ async def db_update(session_id: str, table: str = Form(...), rowid: int = Form(.
     if not db_path:
         return JSONResponse(status_code=400, content={"success": False, "detail": "DB pas en cache"})
     try:
-        # Backup
+       
         backup = str(CACHE_DIR / f"app.db.bak_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
         shutil.copy2(db_path, backup)
         
@@ -2105,4 +2133,4 @@ app.include_router(db_router)
 async def index():
     return FileResponse(ROOT_DIR / "index.html", headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache", "Expires": "0"})
 
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"], allow_credentials=True)
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"], allow_credentials=False)
