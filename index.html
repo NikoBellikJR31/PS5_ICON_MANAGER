@@ -42,6 +42,7 @@ button.warn:hover{background:var(--orange);color:#000}
 .app-item{padding:12px;cursor:pointer;border:1px solid transparent;margin-bottom:4px}
 .app-item:hover{background:rgba(0,255,65,0.05);border-color:rgba(0,255,65,0.2)}
 .app-item.selected{background:rgba(0,255,65,0.1);border-color:var(--green)}
+.app-item .game-title{font-size:0.55rem;color:var(--cyan);margin-top:3px;font-style:italic;opacity:0.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .app-name{font-size:0.85rem}
 .content{flex:1;display:flex;flex-direction:column;background:rgba(0,0,0,0.5)}
 .content-header{padding:12px 20px;border-bottom:1px solid rgba(0,255,65,0.15);display:none;align-items:center;gap:10px;flex-wrap:wrap}
@@ -98,6 +99,42 @@ button.warn:hover{background:var(--orange);color:#000}
 .tab-content.active{display:flex}
 .db-table-item{display:inline-block;padding:8px 12px;cursor:pointer;font-size:0.65rem;border:1px solid rgba(0,255,65,0.3);margin:3px}
 .db-table-item:hover{background:rgba(0,255,65,0.1);border-color:var(--green)}
+
+/* === RESPONSIVE === */
+@media(max-width:900px){
+.header{flex-wrap:wrap;gap:8px;padding:8px 10px}
+.header-center{position:static;transform:none;width:100%;text-align:center;order:3}
+#fsocietyText{font-size:1.2rem;letter-spacing:0.15em}
+.logo img{width:35px;height:35px}
+.logo span{font-size:0.75rem}
+.connection{flex-wrap:wrap;gap:5px}
+.connection input{width:100px;font-size:0.7rem;padding:5px 8px}
+.connection button{font-size:0.65rem;padding:5px 10px}
+.main{flex-direction:column}
+.sidebar{width:100%;max-height:35vh;border-right:none;border-bottom:1px solid rgba(0,255,65,0.15)}
+.apps-list{display:flex;flex-wrap:wrap;gap:4px;padding:4px}
+.app-item{padding:6px 10px;font-size:0.7rem;flex:1;min-width:100px;text-align:center}
+.content{min-height:50vh}
+.content-header{padding:8px 10px;flex-wrap:wrap;gap:5px}
+.content-header button{font-size:0.5rem;padding:3px 6px}
+.content-title{font-size:0.8rem}
+.image-grid{grid-template-columns:1fr!important}
+.image-card{min-width:auto}
+.tabs{flex-wrap:wrap}
+.tab{font-size:0.6rem;padding:6px 10px}
+.console{max-height:20vh}
+}
+@media(max-width:500px){
+.header-center{display:none}
+.sidebar{max-height:25vh}
+.app-item{min-width:80px;font-size:0.6rem;padding:4px 6px}
+.content-header button{font-size:0.45rem;padding:2px 5px}
+.card-header span{font-size:0.6rem}
+.card-dim{font-size:0.45rem}
+.loc-path{font-size:0.4rem;max-width:200px}
+input{font-size:0.7rem;padding:4px 6px}
+button{font-size:0.7rem;padding:5px 10px}
+}
 </style>
 </head>
 <body>
@@ -105,7 +142,7 @@ button.warn:hover{background:var(--orange);color:#000}
 <header class="header">
 <div class="logo">
 <img src="https://customer-assets.emergentagent.com/job_ps5-loader-mod/artifacts/d5zk21kp_IMG_4711.jpeg" alt="fsociety">
-<span>PS5 Icon Manager <span style="font-size:0.5rem;color:var(--yellow);margin-left:6px">v3.0</span></span>
+<span>PS5 Icon Manager <span style="font-size:0.5rem;color:var(--yellow);margin-left:6px">v3.1</span></span>
 </div>
 <div class="header-center"><div id="fsocietyText">FSOCIETY</div></div>
 <div class="connection">
@@ -162,7 +199,7 @@ button.warn:hover{background:var(--orange);color:#000}
 <input type="file" id="fileInput" style="display:none" accept="image/*,.jpg,.jpeg,.png,.bmp,.webp">
 <script>
 (function(){
-var API='http://localhost:8001/api';
+var API=window.location.origin+'/api';
 var sid=null,selApp=null,busy=false,uploadInfo=null,scanId=0;
 
 function log(m,t){var now=new Date().toLocaleTimeString('fr-FR');var el=document.getElementById('logs');el.innerHTML+='<div class="log"><span class="log-time">['+now+']</span><span class="log-msg '+(t||'')+'">'+m+'</span></div>';el.scrollTop=99999}
@@ -184,7 +221,8 @@ if(sid){if(heartbeatTimer){clearInterval(heartbeatTimer);heartbeatTimer=null}fet
 else{var ip=document.getElementById('ip').value,port=document.getElementById('port').value;if(!ip){alert('Entrez IP');return}log('Connexion '+ip+':'+port+'...');fetch(API+'/ftp/connect',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ip:ip,port:parseInt(port)})}).then(function(r){return r.json()}).then(function(d){if(d.success){sid=d.session_id;saveIp(ip,port);document.getElementById('statusDot').classList.add('connected');document.getElementById('connectBtn').textContent='Deconnecter';document.getElementById('connectBtn').classList.add('danger');log('Connecte!','success');log('DB cache: '+(d.db_cache||'?'),'info');document.getElementById('testBtn').style.display='inline';loadApps()}else log('Erreur: '+(d.detail||'fail'),'error')}).catch(function(e){log('Erreur: '+e.message,'error')})}
 };
 
-function loadApps(){log('Scan /user/app/...');fetch(API+'/ftp/apps?session_id='+sid).then(function(r){return r.json()}).then(function(d){var a=d.apps||[];document.getElementById('appCount').textContent=a.length;if(!a.length){document.getElementById('appsList').innerHTML='<div class="empty">Aucune app</div>';return}var h='';for(var i=0;i<a.length;i++)h+='<div class="app-item" data-id="'+a[i].cusa_id+'"><div class="app-name">'+a[i].cusa_id+'</div></div>';document.getElementById('appsList').innerHTML=h;document.querySelectorAll('.app-item').forEach(function(el){el.onclick=function(){document.querySelectorAll('.app-item').forEach(function(x){x.classList.remove('selected')});this.classList.add('selected');pickApp(this.getAttribute('data-id'))}});log(a.length+' apps','success')}).catch(function(e){log('Erreur: '+e.message,'error')})}
+function loadApps(){log('Scan /user/app/...');fetch(API+'/ftp/apps?session_id='+sid).then(function(r){return r.json()}).then(function(d){var a=d.apps||[];document.getElementById('appCount').textContent=a.length;if(!a.length){document.getElementById('appsList').innerHTML='<div class="empty">Aucune app</div>';return}var h='';for(var i=0;i<a.length;i++){var cid=a[i].cusa_id;h+='<div class="app-item" data-id="'+cid+'"><div class="app-name">'+cid+'</div><div class="game-title" data-gt="'+cid+'"></div></div>'}document.getElementById('appsList').innerHTML=h;document.querySelectorAll('.app-item').forEach(function(el){el.onclick=function(){document.querySelectorAll('.app-item').forEach(function(x){x.classList.remove('selected')});this.classList.add('selected');pickApp(this.getAttribute('data-id'))}});log(a.length+' apps','success')
+a.forEach(function(app){var cid=app.cusa_id;fetch(API+'/db/game-name/'+cid).then(function(r){return r.json()}).then(function(gd){if(gd&&gd.name&&gd.name!==cid){var gt=document.querySelector('.game-title[data-gt="'+cid+'"]');if(gt){gt.textContent=gd.name;var it=gt.parentElement;if(it)it.setAttribute('title',gd.name)}}}).catch(function(){})})}).catch(function(e){log('Erreur: '+e.message,'error')})}
 
 function pickApp(id){
 selApp=id;
@@ -193,7 +231,6 @@ var myScan=scanId;
 document.getElementById('contentHeader').style.display='flex';
 document.getElementById('selectedApp').textContent=id;
 document.getElementById('cidBadge').style.display='none';
-// Remettre les boutons visibles (caches quand on scanne apps systeme)
 document.getElementById('inspectBtn').style.display='';
 document.getElementById('restoreBtn').style.display='';
 document.getElementById('restoreDbBtn').style.display='';
@@ -201,11 +238,16 @@ document.getElementById('renameBtn').style.display='';
 document.getElementById('imageGrid').innerHTML='<div class="empty"><div class="spinner" style="margin-bottom:12px"></div>Scan app.db + dossiers FTP...<br><span style="font-size:0.7rem;margin-top:8px">(peut prendre 30-60s)</span></div>';
 log('=== SCAN '+id+' ===','warn');
 
+
+fetch(API+'/db/game-name/'+id).then(function(r){return r.json()}).then(function(nd){
+if(nd.name){document.getElementById('selectedApp').textContent=id+' - '+nd.name}
+}).catch(function(){});
+
 fetch(API+'/ftp/scan-app/'+id+'?session_id='+sid+'&_t='+Date.now()).then(function(r){return r.json()}).then(function(d){
 if(myScan!==scanId){log('Scan annule (nouveau scan lance)','warn');return}
 if(!d.success&&d.detail){log('Erreur: '+d.detail,'error');return}
 
-// Show conceptIds
+
 var cids=Array.isArray(d.concept_ids)?d.concept_ids:[];
 if(cids.length){
 document.getElementById('cidBadge').textContent='conceptId: '+cids.join(', ');
@@ -213,7 +255,6 @@ document.getElementById('cidBadge').style.display='inline';
 log('ConceptId: '+cids.join(', '),'info');
 }
 
-// Show scanned dirs
 var scannedDirs=Array.isArray(d.dirs_scanned)?d.dirs_scanned:[];
 scannedDirs.forEach(function(dir){log('  Dossier: '+dir,'info')});
 
@@ -232,7 +273,6 @@ var mimeMap={'png':'image/png','jpg':'image/jpeg','jpeg':'image/jpeg','webp':'im
 var mime=mimeMap[bestExt]||'image/png';
 if(bestData) preview='<img src="data:'+mime+';base64,'+bestData+'">';
 
-// ALL files are replaced (including icon0_01.png variants)
 var mainPaths=[];
 for(var k=0;k<locs.length;k++){
 mainPaths.push(locs[k].full_path);
@@ -257,7 +297,6 @@ locsHtml+='</div>';
 var btnLabel=hasImage?'Remplacer ('+mainPaths.length+' fichiers)':'Ajouter';
 var pathsStr=mainPaths.join(',');
 
-// Calculer la taille totale reelle des fichiers trouves + dimensions
 var totalSize=0;
 var realDim='';
 for(var k=0;k<locs.length;k++){
@@ -291,7 +330,6 @@ document.getElementById('fileInput').click();
 };
 });
 
-// Delete button handlers
 document.querySelectorAll('.delete-btn').forEach(function(b){
 b.onclick=function(){
 if(busy)return;
@@ -318,7 +356,6 @@ setTimeout(function(){pickApp(selApp)},2000);
 var total=0;images.forEach(function(img){if(img.locations&&img.locations.length)total++});
 log('Scan OK: '+total+'/'+images.length+' types','success');
 
-// Force DB button handlers
 document.querySelectorAll('.force-db-btn').forEach(function(b){
 b.onclick=function(){
 if(busy)return;
@@ -329,7 +366,6 @@ if(!confirm('Forcer le chemin '+label+' dans app.db?\n\n1. Upload '+imgType+' da
 busy=true;
 log('>>> FORCE DB: '+imgType+' pour '+selApp,'warn');
 
-// Step 1: Add image to appmeta if not already there (user needs to select file)
 var fd=new FormData();
 fd.append('image_type',imgType);
 
@@ -348,7 +384,6 @@ else if(!d.db_modified){log('>>> Aucune colonne trouvee dans DB pour ce type','w
 };
 });
 
-// Scan Save Data profond handler
 document.querySelectorAll('.scan-save-btn').forEach(function(b){
 b.onclick=function(){
 if(busy)return;
@@ -368,14 +403,14 @@ for(var fi=0;fi<found.length;fi++){
 log('  TROUVE: '+found[fi].full_path+' ('+found[fi].size+'b)','success');
 if(stEl){stEl.innerHTML+='<div class="step" style="color:var(--green)">TROUVE: '+found[fi].full_path+'</div>'}
 }
-// Mettre a jour la preview si on a des donnees
+
 var card=document.getElementById('card-save_data');
 if(card){
 if(found[0].data){
 var prev=card.querySelector('.card-preview');
 if(prev)prev.innerHTML='<img src="data:image/png;base64,'+found[0].data+'">';
 }
-// Afficher les chemins trouves (lecture seule - system_ex non writable)
+
 var actDiv=card.querySelector('.card-actions');
 if(actDiv){
 var saveHtml='';
@@ -442,7 +477,6 @@ log('  '+st,'success');
 });
 log('>>> OK!','success');
 
-// If this was an ADD (not replace), propose forcing DB path
 if(!uploadInfo.found&&uploadInfo.type!=='save_data'){
 log('>>> Image ajoutee. Forcer le chemin dans app.db...','warn');
 var fdDb=new FormData();
@@ -481,7 +515,7 @@ fetch(API+'/ftp/db-inspect/'+selApp+'?session_id='+sid).then(function(r){return 
 try{
 console.log('DB inspect raw:',JSON.stringify(d));
 if(!d||d.success!==true){document.getElementById('modalBody').innerHTML='<p style="color:var(--red)">Erreur: '+(d&&d.detail?d.detail:'DB cache vide - reconnectez-vous')+'</p>';return}
-var html='<p style="font-size:0.65rem;margin-bottom:10px;color:var(--green-dim)">Source: app.db (cache local) - v3.0</p>';
+var html='<p style="font-size:0.65rem;margin-bottom:10px;color:var(--green-dim)">Source: app.db (cache local) - v3.1</p>';
 var cids=[];try{if(d.concept_ids&&Array.isArray(d.concept_ids))cids=d.concept_ids}catch(e2){}
 if(cids.length>0){var cidStr='';for(var ci=0;ci<cids.length;ci++){if(ci>0)cidStr+=', ';cidStr+=String(cids[ci])}html+='<p style="font-size:0.75rem;margin-bottom:10px;color:var(--orange)">ConceptId: '+cidStr+'</p>'}
 var paths={};try{if(d.paths&&typeof d.paths==='object'&&!Array.isArray(d.paths))paths=d.paths}catch(e3){}
@@ -495,7 +529,6 @@ document.getElementById('modalBody').innerHTML=html;
 window.closeModal=function(){document.getElementById('modalBg').classList.remove('show');document.querySelector('.modal').classList.remove('wide')};
 document.getElementById('modalBg').onclick=function(e){if(e.target===this)closeModal()};
 
-// ===== FTP HEARTBEAT - detect disconnect =====
 var heartbeatTimer=null;
 function startHeartbeat(){
 if(heartbeatTimer)clearInterval(heartbeatTimer);
@@ -521,7 +554,6 @@ if(heartbeatTimer){clearInterval(heartbeatTimer);heartbeatTimer=null}
 },30000);
 }
 
-// ===== TEST CONNECTION =====
 document.getElementById('testBtn').onclick=function(){
 if(!sid)return;
 this.textContent='...';
@@ -550,7 +582,6 @@ sid=null;btn.style.display='none';
 }).finally(function(){btn.textContent='Test';btn.disabled=false});
 };
 
-// ===== TABS =====
 document.querySelectorAll('.tab').forEach(function(tab){
 tab.onclick=function(){
 document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active')});
@@ -562,7 +593,6 @@ else if(target==='dbexplorer'){document.getElementById('tabDb').classList.add('a
 };
 });
 
-// ===== DB EXPLORER =====
 var dbTables=[],dbCurrentTable=null,dbOffset=0,dbLimit=100,dbSearchVal='';
 
 function loadDbTables(){
@@ -635,7 +665,6 @@ html+='</div>';
 
 document.getElementById('modalBody').innerHTML=html;
 
-// Click to edit cells
 document.querySelectorAll('#modalBody td[data-rowid]').forEach(function(td){
 td.onclick=function(){
 var rowid=this.getAttribute('data-rowid');
@@ -655,7 +684,6 @@ else{log('DB erreur: '+(rd.detail||'fail'),'error')}
 };
 });
 
-// Pager buttons
 var prevBtn=document.getElementById('dbModalPrev');
 var nextBtn=document.getElementById('dbModalNext');
 if(prevBtn)prevBtn.onclick=function(){if(dbOffset>0){dbOffset-=dbLimit;openDbModal()}};
@@ -670,7 +698,6 @@ document.getElementById('dbSearchBtn').onclick=function(){
 dbSearchVal=document.getElementById('dbSearch').value.trim();
 dbOffset=0;
 if(!dbCurrentTable&&dbTables.length>0){
-// Chercher dans la premiere table avec des resultats
 for(var i=0;i<dbTables.length;i++){
 if(dbTables[i].rows>0){dbCurrentTable=dbTables[i].name;break}
 }
@@ -690,7 +717,6 @@ else{log('DB erreur: '+(d.detail||'fail'),'error')}
 }).catch(function(err){log('DB erreur: '+err.message,'error')}).finally(function(){btn.disabled=false;btn.textContent='Upload DB vers PS5'});
 };
 
-// ===== RESTORE BACKUPS =====
 document.getElementById('restoreBtn').onclick=function(){
 if(!selApp||!sid)return;
 log('Recherche backups pour '+selApp+'...','info');
@@ -704,10 +730,8 @@ if(!d||!d.success){document.getElementById('modalBody').innerHTML='<p style="col
 var backups=Array.isArray(d.backups)?d.backups:[];
 if(backups.length===0){document.getElementById('modalBody').innerHTML='<p style="color:var(--yellow);font-size:0.75rem">Aucun backup trouve pour '+selApp+'</p>';return}
 
-// Trier du plus recent au plus ancien
 backups.sort(function(a,b){return(b.timestamp||'').localeCompare(a.timestamp||'')});
 
-// Grouper par fichier original
 var groups={};
 for(var i=0;i<backups.length;i++){
 var bk=backups[i];
@@ -727,7 +751,7 @@ html+='<div style="margin-bottom:8px;border:1px solid rgba(0,255,65,0.2);padding
 html+='<div style="font-size:0.7rem;color:var(--yellow);margin-bottom:4px;font-weight:bold">'+gname+' <span style="font-size:0.5rem;color:var(--green-dim)">('+gbks.length+' version'+(gbks.length>1?'s':'')+')</span></div>';
 for(var bi=0;bi<gbks.length;bi++){
 var bk=gbks[bi];
-// Formatter la date
+
 var ts=bk.timestamp||'?';
 var dateStr=ts;
 if(ts.length>=15){
@@ -737,11 +761,12 @@ dateStr=dd+' '+mois[parseInt(m)-1]+' '+y+' '+hh+':'+mm;
 }
 var sizeKb=bk.size?Math.round(bk.size/1024)+'KB':'?';
 var isLatest=(bi===0);
-html+='<div style="margin:2px 0;padding:4px 6px;display:flex;justify-content:space-between;align-items:center;background:'+(isLatest?'rgba(0,255,65,0.05)':'transparent')+'">';
-html+='<div><span style="font-size:0.55rem;color:'+(isLatest?'var(--green)':'var(--green-dim)')+'">'+dateStr+'</span><span style="font-size:0.5rem;color:var(--green-dim);margin-left:8px">'+sizeKb+'</span>';
+html+='<div style="margin:2px 0;padding:4px 6px;display:flex;justify-content:space-between;align-items:center;gap:6px;background:'+(isLatest?'rgba(0,255,65,0.05)':'transparent')+'">';
+html+='<img class="bk-preview-thumb" data-bk-path="'+bk.path+'" src="" style="width:36px;height:36px;object-fit:cover;border:1px solid rgba(0,255,65,0.3);background:#000;flex-shrink:0;cursor:pointer" title="Cliquer pour agrandir" onerror="this.style.opacity=0.2">';
+html+='<div style="flex:1;min-width:0"><span style="font-size:0.55rem;color:'+(isLatest?'var(--green)':'var(--green-dim)')+'">'+dateStr+'</span><span style="font-size:0.5rem;color:var(--green-dim);margin-left:8px">'+sizeKb+'</span>';
 if(isLatest)html+=' <span style="font-size:0.45rem;color:var(--green);font-weight:bold">DERNIER</span>';
 html+='</div>';
-html+='<button class="restore-one-btn" data-path="'+bk.path+'" data-restore="'+bk.restore_to+'" style="padding:3px 8px;font-size:0.55rem;background:'+(isLatest?'var(--green)':'var(--orange)')+';color:#000;border:none;cursor:pointer">Restaurer</button>';
+html+='<button class="restore-one-btn" data-path="'+bk.path+'" data-restore="'+bk.restore_to+'" style="padding:3px 8px;font-size:0.55rem;background:'+(isLatest?'var(--green)':'var(--orange)')+';color:#000;border:none;cursor:pointer;flex-shrink:0">Restaurer</button>';
 html+='</div>';
 }
 html+='</div>';
@@ -749,7 +774,6 @@ html+='</div>';
 
 document.getElementById('modalBody').innerHTML=html;
 
-// Restore all
 document.getElementById('restoreAllBtn').onclick=function(){
 if(!confirm('Restaurer TOUS les backups originaux pour '+selApp+'?'))return;
 this.disabled=true;this.textContent='Restauration...';
@@ -765,7 +789,6 @@ setTimeout(function(){pickApp(selApp)},2000);
 }).catch(function(err){log('Erreur: '+err.message,'error')});
 };
 
-// Restore individual
 document.querySelectorAll('.restore-one-btn').forEach(function(btn){
 btn.onclick=function(){
 var bPath=this.getAttribute('data-path');
@@ -783,11 +806,34 @@ for(var si=0;si<steps.length;si++){log('  '+steps[si],'success')}
 };
 });
 
+(function loadThumbs(){
+var imgs=Array.prototype.slice.call(document.querySelectorAll('.bk-preview-thumb'));
+var idx=0;
+function next(){
+if(idx>=imgs.length)return;
+var el=imgs[idx++];
+var p=el.getAttribute('data-bk-path');
+fetch(API+'/ftp/backup-preview?session_id='+sid+'&path='+encodeURIComponent(p)+'&_t='+Date.now()).then(function(r){return r.json()}).then(function(pd){if(pd&&pd.success&&pd.data){el.src=pd.data;el.setAttribute('data-full',pd.data)}}).catch(function(){}).finally(function(){setTimeout(next,200)});
+}
+next();
+})();
+
+document.querySelectorAll('.bk-preview-thumb').forEach(function(t){
+t.onclick=function(){
+var full=this.getAttribute('data-full')||this.src;
+if(!full||full.length<20)return;
+var ov=document.createElement('div');
+ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:20px';
+ov.innerHTML='<img src="'+full+'" style="max-width:95%;max-height:95%;object-fit:contain;border:1px solid var(--green);box-shadow:0 0 30px var(--green)"><div style="position:absolute;top:20px;right:24px;color:var(--green);font-size:2rem;font-family:monospace">X</div>';
+ov.onclick=function(){document.body.removeChild(ov)};
+document.body.appendChild(ov);
+};
+});
+
 }catch(ex){document.getElementById('modalBody').innerHTML='<p style="color:var(--red)">Erreur: '+ex.message+'</p>'}
 }).catch(function(e){document.getElementById('modalBody').innerHTML='<p style="color:var(--red)">Erreur: '+e.message+'</p>'});
 };
 
-// ===== RESTAURER DB (app.db.bak) =====
 document.getElementById('restoreDbBtn').onclick=function(){
 if(!selApp||!sid)return;
 if(!confirm('RESTAURER app.db depuis le backup initial?\n\nToutes les modifications DB seront annulees.\nLa DB sera re-uploadee sur la PS5.\n\nRedemarrage necessaire apres.'))return;
@@ -804,7 +850,6 @@ else{log('>>> DB restauree localement. FTP perdu.','warn')}
 }).catch(function(err){log('Erreur: '+err.message,'error')}).finally(function(){btn.disabled=false;btn.textContent='Restaurer DB'});
 };
 
-// ===== RENOMMER APP =====
 document.getElementById('renameBtn').onclick=function(){
 if(!selApp||!sid)return;
 var newName=prompt('Nouveau nom pour '+selApp+':\n\n(Modifie dans app.db uniquement - jeux seulement)');
@@ -824,15 +869,18 @@ else{log('>>> Aucun champ nom trouve dans la DB','warn')}
 }).catch(function(err){log('Erreur: '+err.message,'error')}).finally(function(){btn.disabled=false;btn.textContent='Renommer'});
 };
 
-// ===== SCANNER APPS SYSTEME (v2 - sidebar + clic) =====
 var SYS_APPS=[
 {label:'NPXS40016',idx:0},
 {label:'NPXS40071',idx:1},
 {label:'NPXS40139',idx:2},
 {label:'NPXS40075',idx:3},
 {label:'NPXS40075 texture',idx:4},
-{label:'NPXS40140 Blu-ray',idx:5},
-{label:'VSH Assets (BG)',idx:6}
+{label:'NPXS40047',idx:5},
+{label:'NPXS40140 Blu-ray',idx:6},
+{label:'VSH Assets (BG)',idx:7},
+{label:'NPXS40054',idx:8},
+{label:'NPXS40053',idx:9},
+{label:'NPXS40037',idx:10}
 ];
 
 var savedAppsList=null;
@@ -840,7 +888,7 @@ var savedAppsList=null;
 document.getElementById('sysAppsBtn').onclick=function(){
 if(!sid){alert('Connectez-vous d\'abord');return}
 log('Apps systeme chargees dans la sidebar','info');
-// Sauvegarder la liste des jeux
+
 savedAppsList=document.getElementById('appsList').innerHTML;
 var html='<div class="app-item" data-action="back" style="background:rgba(0,255,65,0.15);color:var(--green);font-weight:bold;font-size:0.65rem;padding:8px 12px;border-bottom:1px solid var(--green);cursor:pointer">&#9664; RETOUR AUX JEUX</div>';
 html+='<div class="app-item" style="background:rgba(0,229,255,0.1);color:var(--cyan);font-weight:bold;pointer-events:none;font-size:0.65rem;padding:8px 12px;border-bottom:1px solid var(--cyan)">APPS SYSTEME</div>';
@@ -848,11 +896,11 @@ for(var i=0;i<SYS_APPS.length;i++){
 html+='<div class="app-item sys-app-pick" data-idx="'+SYS_APPS[i].idx+'" data-label="'+SYS_APPS[i].label+'" style="cursor:pointer;border-left:3px solid var(--cyan)">'+SYS_APPS[i].label+'</div>';
 }
 document.getElementById('appsList').innerHTML=html;
-// Handler retour
+
 document.querySelector('[data-action="back"]').onclick=function(){
 if(savedAppsList){
 document.getElementById('appsList').innerHTML=savedAppsList;
-// Re-binder les clics sur les jeux
+
 document.querySelectorAll('.app-item[data-id]').forEach(function(el){
 el.onclick=function(){document.querySelectorAll('.app-item').forEach(function(x){x.classList.remove('selected')});this.classList.add('selected');pickApp(this.getAttribute('data-id'))};
 });
@@ -866,6 +914,7 @@ item.onclick=function(){
 var idx=parseInt(this.getAttribute('data-idx'));
 var label=this.getAttribute('data-label');
 selApp=label;
+scanId++;
 document.getElementById('contentHeader').style.display='flex';
 document.getElementById('selectedApp').textContent=label;
 document.getElementById('cidBadge').style.display='none';
@@ -899,11 +948,19 @@ for(var sbi=0;sbi<gb.length;sbi++){var bk=gb[sbi],ts2=bk.name.split('.bak_')[1]|
 var il=(sbi===0);ch+='<button class="sys-restore-btn" data-bak-path="'+bk.full_path+'" data-restore-to="'+bk.full_path.split('.bak_')[0]+'" style="width:100%;margin-bottom:2px;font-size:0.5rem;padding:3px 6px;background:'+(il?'rgba(0,255,65,0.1)':'rgba(255,107,0,0.1)')+';border:1px solid '+(il?'var(--green)':'var(--orange)')+';color:'+(il?'var(--green)':'var(--orange)')+';cursor:pointer;text-align:left">'+dt+(il?' (DERNIER)':'')+'</button>'}}}
 ch+='</div>'}
 ch+='<div style="padding:4px 8px;font-size:0.45rem;color:var(--cyan);background:rgba(0,229,255,0.05)">'+app.path+'</div>';
-ch+='<div style="padding:3px 8px"><button class="sys-rename-btn" data-appid="'+app.app_id.split(' ')[0]+'" style="width:100%;font-size:0.55rem;padding:3px 6px;background:rgba(0,229,255,0.1);border:1px solid var(--cyan);color:var(--cyan);cursor:pointer">Renommer</button></div></div>';
+var sysId=app.app_id.split(' ')[0];
+var isVshOrTex=(label.indexOf('VSH')>=0||label.indexOf('texture')>=0);
+ch+='<div style="padding:3px 8px;display:flex;gap:4px;flex-wrap:wrap">';
+ch+='<button class="sys-rename-btn" data-appid="'+sysId+'" style="flex:1;font-size:0.55rem;padding:3px 6px;background:rgba(0,229,255,0.1);border:1px solid var(--cyan);color:var(--cyan);cursor:pointer">Renommer</button>';
+if(!isVshOrTex){ch+='<button class="sys-hide-btn" data-appid="'+sysId+'" style="flex:1;font-size:0.55rem;padding:3px 6px;background:rgba(155,0,200,0.15);border:1px solid #9c27b0;color:#ce93d8;cursor:pointer">Masquer/Afficher</button>'}
+ch+='</div></div>';
 document.getElementById('imageGrid').innerHTML=ch;
 document.querySelectorAll('.sys-replace-btn').forEach(function(b){b.onclick=function(){if(busy)return;var tp=this.getAttribute('data-path'),fn=tp.split('/').pop();var inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.onchange=function(ev){var fl=ev.target.files[0];if(!fl)return;if(!confirm('Remplacer '+fn+'?'))return;busy=true;b.disabled=true;b.textContent='Upload...';var fd=new FormData();fd.append('file',fl);fd.append('target_path',tp);fetch(API+'/ftp/replace-system-image?session_id='+sid+'&_t='+Date.now(),{method:'POST',body:fd}).then(function(r2){return r2.json()}).then(function(d2){if(d2.success){(d2.steps||[]).forEach(function(s){log('  '+s,'success')});log('>>> OK!','success')}else{log('Erreur: '+(d2.detail||''),'error')}}).catch(function(e2){log('Erreur: '+e2.message,'error')}).finally(function(){busy=false;b.disabled=false;b.textContent='Remplacer '+fn})};inp.click()}});
 document.querySelectorAll('.sys-restore-btn').forEach(function(rb){rb.onclick=function(){if(busy)return;var bp=this.getAttribute('data-bak-path'),rt=this.getAttribute('data-restore-to'),on=rt.split('/').pop();if(!confirm('Restaurer '+on+'?'))return;busy=true;rb.disabled=true;rb.textContent='...';var fd=new FormData();fd.append('backup_path',bp);fd.append('restore_to',rt);fetch(API+'/ftp/restore-backup/SYS?session_id='+sid+'&_t='+Date.now(),{method:'POST',body:fd}).then(function(r2){return r2.json()}).then(function(rd){if(rd.success){(rd.steps||[]).forEach(function(s){log('  '+s,'success')});log('>>> Restaure!','success')}else{log('Erreur: '+(rd.detail||''),'error')}}).catch(function(e2){log('Erreur: '+e2.message,'error')}).finally(function(){busy=false;rb.disabled=false;rb.textContent='Restaurer '+on})}});
 document.querySelectorAll('.sys-rename-btn').forEach(function(rb){rb.onclick=function(){if(!sid)return;var ai=this.getAttribute('data-appid'),nn=prompt('Nouveau nom pour '+ai+':');if(!nn||!nn.trim())return;rb.disabled=true;rb.textContent='...';var fd=new FormData();fd.append('new_name',nn.trim());fetch(API+'/ftp/rename-app/'+ai+'?session_id='+sid+'&_t='+Date.now(),{method:'POST',body:fd}).then(function(r){return r.json()}).then(function(d2){if(d2.success){(d2.steps||[]).forEach(function(s){log('  '+s,'success')});if(d2.renamed)log('>>> Renomme!','success')}else{log('Erreur: '+(d2.detail||''),'error')}}).catch(function(e){log('Erreur: '+e.message,'error')}).finally(function(){rb.disabled=false;rb.textContent='Renommer'})}});
+
+document.querySelectorAll('.sys-hide-btn').forEach(function(hb){hb.onclick=function(){if(!sid)return;var ai=this.getAttribute('data-appid');var choice=prompt('Masquer ou Afficher '+ai+' sur le XMB?\n\n0 = MASQUER (icone cachee)\n1 = AFFICHER');if(choice!=='0'&&choice!=='1')return;hb.disabled=true;hb.textContent='...';var fd=new FormData();fd.append('visible',choice);fetch(API+'/ftp/toggle-visibility/'+ai+'?session_id='+sid+'&_t='+Date.now(),{method:'POST',body:fd}).then(function(r){return r.json()}).then(function(d2){if(d2.success){(d2.steps||[]).forEach(function(s){log('  '+s,'success')});if(d2.toggled)log('>>> '+ai+' '+(choice==='0'?'masque':'affiche')+'! Redemarrez la PS5.','success');else log('>>> Echec','warn')}else{log('Erreur: '+(d2.detail||''),'error')}}).catch(function(e){log('Erreur: '+e.message,'error')}).finally(function(){hb.disabled=false;hb.textContent='Masquer/Afficher'})}});
+
 log('Scan '+label+' termine','success');
 }).catch(function(err){log('Erreur: '+err.message,'error');document.getElementById('imageGrid').innerHTML='<div class="empty">Erreur</div>'});
 };
