@@ -186,7 +186,7 @@ Améliorations récentes :
 - affichage du nom des applications dans la sidebar
 - affichage du nom réel des applications lors du scan
 - ajout d’un système de preview des backups
-- limitation automatique des backups à 3 versions
+- limitation automatique des backups à 5 
  - suppression automatique des anciens backups
 - Correction d’un bug où plusieurs scans pouvaient se chevaucher et afficher des résultats incorrects.
 Chaque nouveau scan annule désormais le scan précédent afin d’éviter les conflits d’affichage entre applications (jeu / système).
