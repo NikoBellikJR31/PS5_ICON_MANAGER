@@ -218,7 +218,7 @@ Deux méthodes sont disponibles.
 2. extraire l’archive
 3. lancer l’exécutable
 
-Aucune installation de Python n'est nécessaire.
+Aucune installation de Python n'est nécessaire. Net8+ requis 
 
 ---
 
