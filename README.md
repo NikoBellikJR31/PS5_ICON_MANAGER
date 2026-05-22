@@ -273,3 +273,8 @@ PS5 Icon Manager automatise ces opérations grâce à une interface simple.
 # ⭐ Support
 
 Si le projet vous plaît, vous pouvez soutenir le projet en laissant une ⭐ sur Git
+
+## Licence
+
+Ce projet est sous licence MIT.  
+Vous pouvez l’utiliser, le modifier et le partager, tant que vous gardez le crédit de l’auteur original.
